@@ -1,6 +1,20 @@
-const API_BASE_URL = import.meta.env.NODE_ENV === 'production' 
-  ? import.meta.env.VITE_PROD_API_BASE_URL || '/api'
-  : import.meta.env.VITE_API_BASE_URL || `http://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/api`;
+const getApiBaseUrl = () => {
+  if (import.meta.env.NODE_ENV === 'production') {
+    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
+  }
+  
+  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
+  const host = import.meta.env.VITE_BACKEND_HOST || 
+               (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
+                 ? window.location.hostname 
+                 : 'localhost');
+  const port = import.meta.env.VITE_BACKEND_PORT || '3001';
+  const protocol = host.includes('replit.dev') ? 'https' : 'http';
+  
+  return `${protocol}://${host}:${port}/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface Document {
   id: string;
@@ -319,7 +333,7 @@ class ApiService {
     try {
       const healthUrl = import.meta.env.NODE_ENV === 'production' 
         ? '/health'
-        : `https://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/health`;
+        : API_BASE_URL.replace('/api', '/health');
       const response = await fetch(healthUrl);
       return response.ok;
     } catch {

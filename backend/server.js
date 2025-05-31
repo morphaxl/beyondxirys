@@ -13,13 +13,13 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev',
-    process.env.FRONTEND_DEV_URL || 'http://localhost:5001',
-    'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev',
-    'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev:5001',
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_DEV_URL,
+    `https://${process.env.REPLIT_DEV_DOMAIN}`,
+    `https://${process.env.REPLIT_DEV_DOMAIN}:5001`,
     /^https:\/\/.*\.replit\.dev$/,
     /^https:\/\/.*\.replit\.dev:\d+$/
-  ],
+  ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
