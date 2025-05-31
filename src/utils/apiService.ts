@@ -1,6 +1,6 @@
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api' 
-  : 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.NODE_ENV === 'production' 
+  ? import.meta.env.VITE_PROD_API_BASE_URL || '/api'
+  : import.meta.env.VITE_API_BASE_URL || `http://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/api`;
 
 export interface Document {
   id: string;
@@ -317,7 +317,10 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/health');
+      const healthUrl = import.meta.env.NODE_ENV === 'production' 
+        ? '/health'
+        : `http://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/health`;
+      const response = await fetch(healthUrl);
       return response.ok;
     } catch {
       return false;

@@ -13,7 +13,8 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5001',
+    process.env.FRONTEND_URL || 'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev',
+    process.env.FRONTEND_DEV_URL || 'http://localhost:5001',
     'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev'
   ],
   credentials: true
@@ -446,13 +447,14 @@ async function startServer() {
     await irysService.initialize();
     
     // Start server
-    app.listen(PORT, '0.0.0.0', () => {
+    const HOST = process.env.HOST || '0.0.0.0';
+    app.listen(PORT, HOST, () => {
       console.log('✅ Server started successfully!');
-      console.log(`🌐 API running on http://localhost:${PORT}`);
-      console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-      console.log(`📚 Documents API: http://localhost:${PORT}/api/documents`);
-      console.log(`🤖 Chat API: http://localhost:${PORT}/api/chat/message`);
-      console.log(`💰 Irys API: http://localhost:${PORT}/api/irys/status`);
+      console.log(`🌐 API running on http://${HOST}:${PORT}`);
+      console.log(`🔗 Health check: http://${HOST}:${PORT}/health`);
+      console.log(`📚 Documents API: http://${HOST}:${PORT}/api/documents`);
+      console.log(`🤖 Chat API: http://${HOST}:${PORT}/api/chat/message`);
+      console.log(`💰 Irys API: http://${HOST}:${PORT}/api/irys/status`);
       console.log('');
       console.log('🎉 Document Knowledge Base is ready!');
       console.log('📋 Add documents by URL and chat with your knowledge base');
