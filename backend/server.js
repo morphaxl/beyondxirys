@@ -17,6 +17,8 @@ app.use(cors({
     process.env.FRONTEND_DEV_URL,
     `https://${process.env.REPLIT_DEV_DOMAIN}`,
     `https://${process.env.REPLIT_DEV_DOMAIN}:5001`,
+    'https://beyond-gyan.replit.app',
+    'https://gyan.beyondnetwork.xyz',
     /^https:\/\/.*\.replit\.dev$/,
     /^https:\/\/.*\.replit\.dev:\d+$/
   ].filter(Boolean), // Remove any undefined values
