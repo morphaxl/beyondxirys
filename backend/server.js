@@ -12,7 +12,10 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5175',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5001',
+    'https://8f2fafa7-65db-44d3-a8d8-865584f7efe8-00-3mxqxk5jyhns5.picard.replit.dev'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -443,7 +446,7 @@ async function startServer() {
     await irysService.initialize();
     
     // Start server
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log('✅ Server started successfully!');
       console.log(`🌐 API running on http://localhost:${PORT}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/health`);
