@@ -264,6 +264,32 @@ body {
   color: #e74c3c;
 }
 
+/* Simplified Credits Display */
+.credits-display-simple {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #2d3748;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.credits-icon {
+  font-size: 16px;
+}
+
+.credits-count {
+  color: white;
+}
+
+.credits-label {
+  color: #a0aec0;
+  font-weight: 500;
+}
+
 /* Chat Messages Styles */
 .chat-messages {
   flex: 1;

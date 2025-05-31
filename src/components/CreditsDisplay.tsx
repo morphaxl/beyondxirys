@@ -37,41 +37,27 @@ const CreditsDisplay: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="credits-display">
-        <div className="credits-loading">Loading credits...</div>
+      <div className="credits-display-simple">
+        <div className="credits-loading">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="credits-display">
-        <div className="credits-error">Error: {error}</div>
+      <div className="credits-display-simple">
+        <div className="credits-error">Error loading credits</div>
       </div>
     );
   }
 
   return (
-    <div className="credits-display">
-      <div className="credits-header">
-        <h3>💳 Credits</h3>
-      </div>
-      <div className="credits-info">
-        <div className="credit-item">
-          <span className="credit-label">Remaining:</span>
-          <span className="credit-value">{getRemainingCredits().toFixed(6)}</span>
-        </div>
-        <div className="credit-item">
-          <span className="credit-label">Monthly Limit:</span>
-          <span className="credit-value">{credits?.monthlyLimit}</span>
-        </div>
-        <div className="credit-item">
-          <span className="credit-label">Used This Month:</span>
-          <span className="credit-value">{credits?.monthlyCurrentUsage}</span>
-        </div>
-      </div>
+    <div className="credits-display-simple">
+      <span className="credits-icon">✨</span>
+      <span className="credits-count">{getRemainingCredits().toFixed(0)}</span>
+      <span className="credits-label">Credits</span>
     </div>
   );
 };
 
-export default CreditsDisplay; 
+export default CreditsDisplay;
