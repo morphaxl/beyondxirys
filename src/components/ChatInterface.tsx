@@ -37,7 +37,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     // Set user info from props
     setUser({ email: userEmail });
-    
+
     // Add welcome message
     const welcomeMessage: Message = {
       id: '1',
@@ -76,7 +76,7 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!inputValue.trim() || loading) return;
 
     const userMessage: Message = {
@@ -94,16 +94,16 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
       // Get enhanced context from backend API
       console.log('🤖 Getting enhanced document context from backend...');
       const contextData = await apiService.sendChatMessage(userMessage.content, documents.length > 0);
-      
+
       console.log('📚 Backend provided context for', contextData.documentsUsed, 'documents');
       console.log('📝 System prompt length:', contextData.systemPrompt.length, 'characters');
-      
+
       // Get initialized Beyond SDK
       const beyond = await getBeyondSdk();
-      
+
       // Import CHAT_MODELS from the SDK
       const { CHAT_MODELS } = await import('@Beyond-Network-AI/beyond-ai');
-      
+
       // Create comprehensive prompt with system context + user message
       const messages = [
         {
@@ -115,9 +115,9 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
           content: userMessage.content
         }
       ];
-      
+
       console.log('🚀 Sending to Beyond AI with full document context...');
-      
+
       // Send to Beyond AI with enhanced context
       const response = await beyond.chat.createCompletion({
         model: CHAT_MODELS.LLAMA_8B,
@@ -125,14 +125,14 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
         temperature: 0.7,
         stream: true
       });
-      
+
       let aiResponseContent = '';
       if ('content' in response) {
         aiResponseContent = response.content;
       } else {
         aiResponseContent = response.choices[0]?.message?.content || 'No response generated';
       }
-      
+
       const aiMessage: Message = {
         id: generateMessageId(),
         content: aiResponseContent,
@@ -141,10 +141,10 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      
+
       // Log success
       console.log('✅ AI response generated using', contextData.documentsUsed, 'documents');
-      
+
     } catch (err: any) {
       console.error('❌ Chat error:', err);
       const errorMessage: Message = {
@@ -161,7 +161,7 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
 
   const handleDocumentAdded = (document: Document) => {
     onDocumentAdded(document);
-    
+
     // Add confirmation message
     const confirmationMessage: Message = {
       id: generateMessageId(),
@@ -199,8 +199,9 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
     <div className="chat-interface-with-sidebar">
       <header className="chat-header">
         <div className="user-info">
-          <h2>Beyond AI Chat</h2>
-          {user && <p>Welcome, {user.email || 'User'}!</p>}
+          <h2>Beyond Gyan</h2>
+          <p className="subtitle">Powered by IRYS</p>
+          <p>Welcome, {userEmail}!</p>
         </div>
         <div className="header-actions">
           <CreditsDisplay />
@@ -269,4 +270,4 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
   );
 };
 
-export default ChatInterface; 
+export default ChatInterface;
