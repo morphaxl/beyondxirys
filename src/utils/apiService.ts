@@ -319,7 +319,7 @@ class ApiService {
     try {
       const healthUrl = import.meta.env.NODE_ENV === 'production' 
         ? '/health'
-        : `http://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/health`;
+        : `https://${import.meta.env.VITE_BACKEND_HOST || 'localhost'}:${import.meta.env.VITE_BACKEND_PORT || '3001'}/health`;
       const response = await fetch(healthUrl);
       return response.ok;
     } catch {
