@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { getBeyondSdk } from '../utils/beyondSdk';
+import React, { useState, useEffect } from "react";
+import { getBeyondSdk } from "../utils/beyondSdk";
 
 interface CreditBalance {
   monthlyLimit: string;
@@ -11,7 +11,7 @@ interface CreditBalance {
 const CreditsDisplay: React.FC = () => {
   const [credits, setCredits] = useState<CreditBalance | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchCredits();
@@ -24,7 +24,7 @@ const CreditsDisplay: React.FC = () => {
       const creditBalance = await beyond.credits.getBalance();
       setCredits(creditBalance);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch credits');
+      setError(err.message || "Failed to fetch credits");
     } finally {
       setLoading(false);
     }
@@ -32,7 +32,9 @@ const CreditsDisplay: React.FC = () => {
 
   const getRemainingCredits = () => {
     if (!credits) return 0;
-    return parseFloat(credits.monthlyLimit) - parseFloat(credits.monthlyCurrentUsage);
+    return (
+      parseFloat(credits.monthlyLimit) - parseFloat(credits.monthlyCurrentUsage)
+    );
   };
 
   if (loading) {
@@ -55,7 +57,7 @@ const CreditsDisplay: React.FC = () => {
     <div className="credits-display-simple">
       <span className="credits-icon">✨</span>
       <span className="credits-count">{getRemainingCredits().toFixed(0)}</span>
-      <span className="credits-label">Credits</span>
+      <span className="credits-label">Beyond Credits</span>
     </div>
   );
 };
