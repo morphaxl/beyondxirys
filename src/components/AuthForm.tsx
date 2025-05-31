@@ -64,6 +64,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     <div className="auth-form">
       <div className="auth-card">
         <h1>Beyond Gyan</h1>
+        <p className="subtitle">Powered by IRYS</p>
         <p>Sign in to start chatting with AI and managing documents</p>
 
         {step === 'email' ? (

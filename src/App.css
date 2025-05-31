@@ -199,6 +199,15 @@ body {
   background: #c0392b;
 }
 
+/* Subtitle styling */
+.subtitle {
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 5px 0 15px 0;
+  text-align: center;
+}
+
 /* Credits Display Styles */
 .credits-display {
   background: #f8f9fa;
