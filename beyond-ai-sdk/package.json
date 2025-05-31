@@ -1,0 +1,61 @@
+{
+  "name": "@Beyond-Network-AI/beyond-ai",
+  "version": "0.2.1",
+  "description": "TypeScript SDK for Beyond AI allowing developers to implement passwordless authentication, onchain payments, and AI inference requests",
+  "main": "dist/index.js",
+  "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "jest",
+    "test:dev": "node set-test-env.js dev && jest",
+    "test:prod": "node set-test-env.js prod && jest",
+    "build": "rollup -c",
+    "compile": "tsc",
+    "prepare": "npm run build",
+    "e2e:setup": "cp .npmrc e2e-tests/ && cd e2e-tests && npm install",
+    "e2e:clean": "cd e2e-tests && npm run clean",
+    "e2e:dev": "cd e2e-tests && npm run test:dev",
+    "e2e:prod": "cd e2e-tests && npm run test:prod",
+    "e2e:latest": "cd e2e-tests && npm run test:latest",
+    "e2e:dev:local": "npm run build && cd e2e-tests && npm run test:dev:local",
+    "e2e:prod:local": "npm run build && cd e2e-tests && npm run test:prod:local",
+    "testsdk:dev:0.2.0": "cd e2e-tests && npm install @Beyond-Network-AI/beyond-ai@0.2.0 && npm run test:dev",
+    "testsdk:prod:0.2.0": "cd e2e-tests && npm install @Beyond-Network-AI/beyond-ai@0.2.0 && npm run test:prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beyond-Network-AI/beyond-ai-sdk.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "keywords": [
+    "beyond",
+    "ai",
+    "sdk"
+  ],
+  "author": "Your Team",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/jest": "^29.5.14",
+    "axios": "^1.9.0",
+    "jest": "^29.7.0",
+    "rollup": "^4.40.2",
+    "rollup-plugin-dts": "^6.2.1",
+    "terser": "^5.39.2",
+    "ts-jest": "^29.3.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "node-localstorage": "^3.0.5"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "beyond-ai-sdk-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for Beyond AI SDK via npm install",
+  "private": true,
+  "scripts": {
+    "test:dev": "node test-sdk-dev.js",
+    "test:prod": "node test-sdk-prod.js",
+    "test:dev:local": "USE_LOCAL_SDK=true node test-sdk-dev.js",
+    "test:prod:local": "USE_LOCAL_SDK=true node test-sdk-prod.js",
+    "test:latest": "npm install @Beyond-Network-AI/beyond-ai@latest && npm run test:dev",
+    "test:specific": "echo 'Usage: npm run test:specific -- 0.1.8' && exit 1",
+    "pretest:specific": "npm install @Beyond-Network-AI/beyond-ai@${npm_config_version:-latest}",
+    "setup:local": "npm run clean && npm install && npm run link:local",
+    "link:local": "cd .. && npm run build && cd e2e-tests && npm link ../",
+    "clean": "rm -rf node_modules package-lock.json scratch"
+  },
+  "dependencies": {
+    "@Beyond-Network-AI/beyond-ai": "^0.2.1",
+    "axios": "^1.9.0",
+    "node-localstorage": "^3.0.5"
+  },
+  "keywords": [
+    "beyond-ai",
+    "sdk",
+    "e2e",
+    "test"
+  ],
+  "author": "Beyond Network AI",
+  "license": "MIT"
+}
