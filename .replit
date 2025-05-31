@@ -7,3 +7,32 @@ channel = "stable-24_05"
 [deployment]
 run = ["sh", "-c", "npm run preview"]
 build = ["sh", "-c", "npm run build"]
+
+[workflows]
+runButton = "Development"
+
+[[workflows.workflow]]
+name = "Development"
+author = 27388909
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Production Preview"
+author = 27388909
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run preview"
+
+[[ports]]
+localPort = 5173
+externalPort = 80
