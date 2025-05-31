@@ -199,13 +199,22 @@ body {
   background: #c0392b;
 }
 
+/* Title section styling */
+.title-section {
+  margin-bottom: 8px;
+}
+
+.title-section h2 {
+  margin-bottom: 2px;
+}
+
 /* Subtitle styling */
 .subtitle {
   color: #666;
   font-size: 14px;
   font-weight: 500;
-  margin: 5px 0 15px 0;
-  text-align: center;
+  margin: 0;
+  text-align: left;
 }
 
 /* Credits Display Styles */

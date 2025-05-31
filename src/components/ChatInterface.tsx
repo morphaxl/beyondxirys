@@ -199,8 +199,10 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
     <div className="chat-interface-with-sidebar">
       <header className="chat-header">
         <div className="user-info">
-          <h2>Beyond Gyan</h2>
-          <p className="subtitle">Powered by IRYS</p>
+          <div className="title-section">
+            <h2>Beyond Gyan</h2>
+            <p className="subtitle">Powered by IRYS</p>
+          </div>
           <p>Welcome, {userEmail}!</p>
         </div>
         <div className="header-actions">
