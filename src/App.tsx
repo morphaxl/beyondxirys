@@ -75,7 +75,7 @@ function App() {
     return (
       <div className="app-loading">
         <div className="loading-spinner"></div>
-        <p>Loading Beyond AI Chat...</p>
+        <p>Loading Beyond Gyan...</p>
         <small>Initializing SDK...</small>
       </div>
     );

@@ -63,7 +63,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   return (
     <div className="auth-form">
       <div className="auth-card">
-        <h1>Beyond AI Chat</h1>
+        <h1>Beyond Gyan</h1>
         <p>Sign in to start chatting with AI and managing documents</p>
 
         {step === 'email' ? (
@@ -84,7 +84,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             {error && <div className="error">{error}</div>}
             
             <button type="submit" disabled={loading || !email}>
-              {loading ? 'Sending...' : 'Send OTP'}
+              {loading ? 'Sending...' : 'Send Passcode'}
             </button>
           </form>
         ) : (
