@@ -91,7 +91,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         ) : (
           <form onSubmit={handleVerifyOtp}>
             <div className="form-group">
-              <label htmlFor="otp">Enter OTP</label>
+              <label htmlFor="otp">Enter PassCode</label>
               <p className="otp-hint">Check your email ({email}) for the 6-digit code</p>
               <input
                 type="text"
