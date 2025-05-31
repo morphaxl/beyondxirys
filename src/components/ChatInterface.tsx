@@ -198,12 +198,12 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
   return (
     <div className="chat-interface-with-sidebar">
       <header className="chat-header">
-        <div className="user-info">
-          <div className="title-section">
+        <div className="header-brand">
+          <img src="/logo.svg" alt="Beyond Gyan Logo" className="header-logo" />
+          <div className="user-info">
             <h2>Beyond Gyan</h2>
             <p className="subtitle">Powered by IRYS</p>
           </div>
-          <p>Welcome, {userEmail}!</p>
         </div>
         <div className="header-actions">
           <CreditsDisplay />

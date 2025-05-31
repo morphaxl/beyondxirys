@@ -60,6 +60,16 @@ body {
   text-align: center;
 }
 
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+}
+
 .auth-card h1 {
   color: #333;
   margin-bottom: 8px;
@@ -164,6 +174,18 @@ body {
   background: white;
   border-bottom: 1px solid #e1e5e9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
 }
 
 .user-info h2 {
@@ -478,6 +500,11 @@ body {
     flex-direction: column;
     gap: 16px;
     text-align: center;
+  }
+
+  .header-brand {
+    flex-direction: column;
+    gap: 12px;
   }
 
   .header-actions {

@@ -63,6 +63,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   return (
     <div className="auth-form">
       <div className="auth-card">
+        <div className="logo-container">
+          <img src="/logo.svg" alt="Beyond Gyan Logo" className="logo" />
+        </div>
         <h1>Beyond Gyan</h1>
         <p className="subtitle">Powered by IRYS</p>
         <p>Sign in to start chatting with AI and managing documents</p>
