@@ -108,7 +108,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             {error && <div className="error">{error}</div>}
             
             <button type="submit" disabled={loading || otp.length !== 6}>
-              {loading ? 'Verifying...' : 'Verify OTP'}
+              {loading ? 'Verifying...' : 'Verify Passcode'}
             </button>
             
             <button type="button" onClick={handleBackToEmail} className="back-button">
