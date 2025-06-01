@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
                (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
                  ? window.location.hostname 
                  : 'localhost');
-  const port = '5001'; // Backend is running on port 5001
+  const port = '5002'; // Backend is running on port 5002
   const protocol = host.includes('replit.dev') ? 'https' : 'http';
   
   return `${protocol}://${host}:${port}/api`;
