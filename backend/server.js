@@ -29,16 +29,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the React app build directory in production
-if (process.env.NODE_ENV === 'production') {
-  const path = await import('path');
-  const { fileURLToPath } = await import('url');
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  
-  app.use(express.static(path.join(__dirname, '../dist')));
-}
-
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -435,19 +425,7 @@ app.get('/api/irys/status', async (req, res) => {
 
 // ==================== ERROR HANDLING ====================
 
-// Catch-all handler for React app in production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', async (req, res) => {
-    const path = await import('path');
-    const { fileURLToPath } = await import('url');
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
-
-// 404 handler for API routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
