@@ -1,15 +1,14 @@
 const getApiBaseUrl = () => {
-  // In production deployment, always use relative path
-  if (import.meta.env.PROD || window.location.hostname.includes('replit.app')) {
-    return '/api';
+  if (import.meta.env.NODE_ENV === 'production') {
+    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
   
-  // In development, use the backend port directly
+  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
   const host = import.meta.env.VITE_BACKEND_HOST || 
                (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
                  ? window.location.hostname 
                  : 'localhost');
-  const port = '5002'; // Backend is running on port 5002
+  const port = import.meta.env.VITE_BACKEND_PORT || '3001';
   const protocol = host.includes('replit.dev') ? 'https' : 'http';
   
   return `${protocol}://${host}:${port}/api`;

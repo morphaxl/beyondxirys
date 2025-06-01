@@ -19,17 +19,6 @@ class IrysService {
       console.log('🚀 Initializing Irys service wallet for devnet...');
       console.log('📍 Service wallet:', process.env.WALLET_ADDRESS);
       
-      // Check for required environment variables
-      if (!process.env.PRIVATE_KEY) {
-        throw new Error('PRIVATE_KEY environment variable is required');
-      }
-      if (!process.env.RPC_URL) {
-        throw new Error('RPC_URL environment variable is required');
-      }
-      if (!process.env.WALLET_ADDRESS) {
-        throw new Error('WALLET_ADDRESS environment variable is required');
-      }
-      
       // Following Irys docs: https://docs.irys.xyz/build/d/networks
       // For devnet, we need to use .withRpc() and .devnet()
       this.uploader = await Uploader(Ethereum)

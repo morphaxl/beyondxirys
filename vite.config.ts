@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: "0.0.0.0",
-    port: 3001,
+    port: 5001,
     allowedHosts: [
       "beyond-gyan.replit.app",
       "gyan.beyondnetwork.xyz",
@@ -14,7 +14,7 @@ export default defineConfig({
   },
   preview: {
     host: "0.0.0.0",
-    port: 3001,
+    port: 5001,
     allowedHosts: [
       "beyond-gyan.replit.app",
       "gyan.beyondnetwork.xyz",
