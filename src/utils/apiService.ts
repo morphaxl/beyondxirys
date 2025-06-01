@@ -1,6 +1,7 @@
 const getApiBaseUrl = () => {
-  if (import.meta.env.NODE_ENV === 'production') {
-    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
+  // In production deployment, always use relative path
+  if (import.meta.env.PROD || window.location.hostname.includes('replit.app')) {
+    return '/api';
   }
   
   // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
