@@ -14,7 +14,11 @@ function App() {
   const [sdkError, setSdkError] = useState<string>('');
 
   React.useEffect(() => {
+    let isInitialized = false;
+    
     const initializeApp = async () => {
+      if (isInitialized) return; // Prevent multiple initializations
+      
       try {
         // Initialize Beyond SDK first
         console.log('🚀 Initializing Beyond SDK...');
@@ -39,6 +43,8 @@ function App() {
             // Don't fail the whole app if documents can't be loaded
           }
         }
+        
+        isInitialized = true;
       } catch (error: any) {
         console.error('❌ App initialization failed:', error);
         setSdkError(`SDK initialization failed: ${error.message}`);
@@ -47,8 +53,46 @@ function App() {
       }
     };
 
+    // Handle visibility change to maintain state
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isInitialized) {
+        // Re-check auth state when coming back to the app
+        const token = localStorage.getItem('beyond_auth_token');
+        const email = localStorage.getItem('beyond_user_email');
+        
+        if (token && email && !isAuthenticated) {
+          setIsAuthenticated(true);
+          setUserEmail(email);
+        }
+      }
+    };
+
+    // Handle page focus to maintain state
+    const handleFocus = () => {
+      if (isInitialized) {
+        // Re-check auth state when window gets focus
+        const token = localStorage.getItem('beyond_auth_token');
+        const email = localStorage.getItem('beyond_user_email');
+        
+        if (token && email && !isAuthenticated) {
+          setIsAuthenticated(true);
+          setUserEmail(email);
+        }
+      }
+    };
+
     initializeApp();
-  }, []);
+    
+    // Add event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isAuthenticated]); // Add isAuthenticated as dependency
 
   const handleAuthSuccess = (email: string) => {
     setIsAuthenticated(true);

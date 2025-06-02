@@ -6,9 +6,16 @@ interface AuthFormProps {
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => {
+    // Restore email from sessionStorage
+    return sessionStorage.getItem('auth_email') || '';
+  });
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'email' | 'otp'>('email');
+  const [step, setStep] = useState<'email' | 'otp'>(() => {
+    // Restore step from sessionStorage
+    const savedStep = sessionStorage.getItem('auth_step');
+    return (savedStep as 'email' | 'otp') || 'email';
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,6 +30,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       
       await beyond.auth.email.requestOtp(email);
       setStep('otp');
+      
+      // Save state to sessionStorage
+      sessionStorage.setItem('auth_email', email);
+      sessionStorage.setItem('auth_step', 'otp');
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP');
     } finally {
@@ -46,6 +57,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       localStorage.setItem('beyond_auth_token', JSON.stringify(authResult));
       localStorage.setItem('beyond_user_email', email);
       
+      // Clear session storage
+      sessionStorage.removeItem('auth_email');
+      sessionStorage.removeItem('auth_step');
+      
       onAuthSuccess(email);
     } catch (err: any) {
       setError(err.message || 'Invalid OTP');
@@ -58,6 +73,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     setStep('email');
     setOtp('');
     setError('');
+    
+    // Clear session storage
+    sessionStorage.removeItem('auth_email');
+    sessionStorage.removeItem('auth_step');
   };
 
   return (
