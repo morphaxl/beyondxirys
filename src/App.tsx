@@ -60,7 +60,7 @@ function App() {
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
         
-        if (token && email && !isAuthenticated) {
+        if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
         }
@@ -74,7 +74,7 @@ function App() {
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
         
-        if (token && email && !isAuthenticated) {
+        if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
         }
@@ -92,7 +92,7 @@ function App() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [isAuthenticated]); // Add isAuthenticated as dependency
+  }, []); // Empty dependency array to prevent re-initialization
 
   const handleAuthSuccess = (email: string) => {
     setIsAuthenticated(true);
