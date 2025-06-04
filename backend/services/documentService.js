@@ -362,17 +362,87 @@ class DocumentService {
   }
 
   /**
-   * Get all documents for a user
+   * Get all documents for a user (async version for API)
    */
-  getAllDocuments(userId) {
+  async getAllDocuments(userId) {
     try {
-      const userDocs = this.getUserDocuments(userId);
-      const docs = Array.from(userDocs.values());
-      console.log(`📚 Retrieved ${docs.length} documents for user: ${userId}`);
-      return docs;
+      console.log(`📚 Getting all documents for user: ${userId}`);
+
+      // Get from memory cache first
+      const userDocsMap = this.userDocuments.get(userId) || new Map();
+      let documents = Array.from(userDocsMap.values());
+
+      // If no documents in cache, try to retrieve from Irys user index
+      if (documents.length === 0) {
+        console.log('📥 No cached documents, checking for stored user index...');
+        try {
+          const userIndexDoc = await this.retrieveUserIndex(userId);
+          if (userIndexDoc && userIndexDoc.documentIds) {
+            console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
+            
+            // Retrieve each document from Irys
+            for (const docInfo of userIndexDoc.documentIds) {
+              try {
+                const doc = await irysService.retrieveDocument(docInfo.irysId);
+                // Add to cache
+                userDocsMap.set(doc.id, doc);
+                documents.push(doc);
+                console.log(`✅ Retrieved document from Irys: ${doc.title}`);
+              } catch (docError) {
+                console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
+              }
+            }
+          }
+        } catch (indexError) {
+          console.log('📝 No existing user index found, will create on first document add');
+        }
+      }
+
+      // Ensure all documents have proper structure with id field
+      const validDocuments = documents.map(doc => ({
+        id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: doc.title || 'Untitled Document',
+        url: doc.url || '',
+        summary: doc.summary || '',
+        irysId: doc.irysId || '',
+        irysUrl: doc.irysUrl || '',
+        addedAt: doc.addedAt || new Date().toISOString(),
+        contentLength: doc.contentLength || 0,
+        wordCount: doc.wordCount || 0,
+        metadata: {
+          domain: doc.metadata?.domain || '',
+          description: doc.metadata?.description || '',
+          author: doc.metadata?.author || '',
+          publishDate: doc.metadata?.publishDate || '',
+          tags: doc.metadata?.tags || [],
+          language: doc.metadata?.language || 'en'
+        }
+      }));
+
+      const statistics = {
+        totalDocuments: validDocuments.length,
+        totalWords: validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
+        totalCharacters: validDocuments.reduce((sum, doc) => sum + (doc.contentLength || 0), 0),
+        domains: [...new Set(validDocuments.map(doc => doc.metadata?.domain).filter(Boolean))],
+        averageWordsPerDocument: validDocuments.length > 0 
+          ? Math.round(validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0) / validDocuments.length)
+          : 0
+      };
+
+      console.log(`✅ Found ${validDocuments.length} documents for user`);
+      return { documents: validDocuments, statistics };
     } catch (error) {
-      console.error('❌ Error getting documents for user:', userId, error.message);
-      return []; // Always return an array, even on error
+      console.error('❌ Error getting documents:', error);
+      return { 
+        documents: [], 
+        statistics: {
+          totalDocuments: 0,
+          totalWords: 0,
+          totalCharacters: 0,
+          domains: [],
+          averageWordsPerDocument: 0
+        }
+      };
     }
   }
 

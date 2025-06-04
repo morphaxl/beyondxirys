@@ -130,7 +130,7 @@ class ApiService {
         success: boolean;
         documents: Document[];
         statistics: DocumentStats;
-      }>('/documents');
+      }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
 
       if (!response.success) {
         throw new Error('Failed to fetch documents');
