@@ -39,11 +39,11 @@ function App() {
           console.log('📚 Loading existing documents...');
           try {
             const { documents: existingDocs } = await apiService.getAllDocuments();
-            console.log('✅ Loaded', existingDocs.length, 'existing documents');
-            setDocuments(existingDocs);
+            console.log('✅ Loaded', existingDocs?.length || 0, 'existing documents');
+            setDocuments(existingDocs || []); // Ensure we always set an array
           } catch (docError: any) {
             console.warn('⚠️ Could not load existing documents:', docError.message);
-            // Don't fail the whole app if documents can't be loaded
+            setDocuments([]); // Set empty array on error
           }
         }
 

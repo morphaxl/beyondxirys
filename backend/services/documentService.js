@@ -86,7 +86,7 @@ class DocumentService {
       console.log(`📚 Getting all documents for user: ${userEmail}`);
 
       const userDocsMap = this.userDocuments.get(userEmail) || new Map();
-      
+
       // Convert Map values to array
       const documents = Array.from(userDocsMap.values());
 
@@ -324,6 +324,21 @@ class DocumentService {
     } catch (error) {
       console.error('❌ Failed to get all document content:', error.message);
       throw error;
+    }
+  }
+
+  /**
+   * Get all documents for a user
+   */
+  getAllDocuments(userId) {
+    try {
+      const userDocs = this.getUserDocuments(userId);
+      const docs = Array.from(userDocs.values());
+      console.log(`📚 Retrieved ${docs.length} documents for user: ${userId}`);
+      return docs;
+    } catch (error) {
+      console.error('❌ Error getting documents for user:', userId, error.message);
+      return []; // Always return an array, even on error
     }
   }
 }

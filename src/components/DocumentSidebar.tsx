@@ -29,24 +29,24 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
 
     try {
       console.log('📋 Adding document via backend API:', url);
-      
+
       // Add document through backend API
       const document = await apiService.addDocument(url);
-      
+
       console.log('✅ Document added successfully:', document);
-      
+
       // Notify parent component
       onDocumentAdded(document);
       setUrl('');
-      
+
       // Update service info
       await updateServiceInfo();
-      
+
       console.log('📄 Document stored on Irys:', document.irysUrl);
     } catch (err: any) {
       console.error('❌ Failed to add document:', err);
       let errorMessage = 'Failed to add document';
-      
+
       if (err.message.includes('Invalid URL')) {
         errorMessage = 'Please provide a valid URL';
       } else if (err.message.includes('Failed to access')) {
@@ -56,7 +56,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       } else if (err.message.includes('storage') || err.message.includes('Irys')) {
         errorMessage = 'Failed to store document permanently';
       }
-      
+
       setError(errorMessage + (err.message ? ` (${err.message})` : ''));
     } finally {
       setLoading(false);
@@ -68,11 +68,11 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       // Get statistics (documents are managed by parent)
       const { statistics } = await apiService.getAllDocuments();
       setStats(statistics);
-      
+
       // Get Irys balance
       const balance = await apiService.getIrysBalance();
       setIrysBalance(balance.balance);
-      
+
       setInitializationError('');
     } catch (error: any) {
       console.error('❌ Failed to update service info:', error);
@@ -97,7 +97,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     try {
       setError('');
       setInitializationError('Testing backend connection...');
-      
+
       const isHealthy = await apiService.healthCheck();
       if (isHealthy) {
         await updateServiceInfo();
@@ -135,7 +135,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               <small>Balance: {irysBalance} ETH (Free Tokens)</small>
             </div>
           </div>
-          
+
           {serviceWalletInfo && (
             <div className="wallet-info">
               <small><strong>Service Wallet:</strong> {serviceWalletInfo.address.slice(0, 6)}...{serviceWalletInfo.address.slice(-4)}</small>
@@ -152,17 +152,17 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               <small><strong>Domains:</strong> {stats.domains.length}</small>
             </div>
           )}
-          
+
           <div className="devnet-notice">
             <small>📝 Backend handles all scraping & Irys storage automatically</small>
           </div>
-          
+
           {initializationError && (
             <div className={`initialization-status ${initializationError.includes('✅') ? 'success' : 'error'}`}>
               <small>{initializationError}</small>
             </div>
           )}
-          
+
           <div className="connection-buttons">
             <button onClick={verifyServiceWallet} className="test-connection-btn">
               Check Service
@@ -204,12 +204,12 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
 
       <div className="documents-list">
         <h4>Stored Documents ({documents.length})</h4>
-        {documents.length === 0 ? (
-          <p className="no-documents">
+        {!documents || documents.length === 0 ? (
+          <div className="no-documents">
             No documents stored yet. Add your first document above to start building your knowledge base!
-          </p>
+          </div>
         ) : (
-          documents.map((doc) => (
+          documents.map((document) => (
             <div key={doc.id} className="document-item">
               <div className="document-header">
                 <h5 className="document-title">{doc.title}</h5>
@@ -217,13 +217,13 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   {new Date(doc.addedAt).toLocaleDateString()}
                 </span>
               </div>
-              
+
               <p className="document-summary">{doc.summary}</p>
-              
+
               <div className="document-meta">
                 <small>📊 {doc.wordCount} words • 🌐 {doc.metadata?.domain}</small>
               </div>
-              
+
               <div className="document-links">
                 <a 
                   href={doc.url} 
@@ -272,4 +272,4 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
   );
 };
 
-export default DocumentSidebar; 
+export default DocumentSidebar;
