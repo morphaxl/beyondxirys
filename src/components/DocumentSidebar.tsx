@@ -210,23 +210,23 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
           </div>
         ) : (
           documents.map((document) => (
-            <div key={doc.id} className="document-item">
+            <div key={document.id} className="document-item">
               <div className="document-header">
-                <h5 className="document-title">{doc.title}</h5>
+                <h5 className="document-title">{document.title}</h5>
                 <span className="document-date">
-                  {new Date(doc.addedAt).toLocaleDateString()}
+                  {new Date(document.addedAt).toLocaleDateString()}
                 </span>
               </div>
 
-              <p className="document-summary">{doc.summary}</p>
+              <p className="document-summary">{document.summary}</p>
 
               <div className="document-meta">
-                <small>📊 {doc.wordCount} words • 🌐 {doc.metadata?.domain}</small>
+                <small>📊 {document.wordCount} words • 🌐 {document.metadata?.domain}</small>
               </div>
 
               <div className="document-links">
                 <a 
-                  href={doc.url} 
+                  href={document.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="source-link"
@@ -235,7 +235,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   🔗 Source
                 </a>
                 <a 
-                  href={doc.irysUrl} 
+                  href={document.irysUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="irys-link"
@@ -244,7 +244,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   🌐 Irys Link
                 </a>
                 <button
-                  onClick={() => handleDeleteDocument(doc.id)}
+                  onClick={() => handleDeleteDocument(document.id)}
                   className="delete-btn"
                   title="Delete document"
                 >
