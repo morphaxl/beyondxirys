@@ -63,6 +63,7 @@ function App() {
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
+          apiService.setUserEmail(email);
         }
       }
     };
@@ -77,6 +78,7 @@ function App() {
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
+          apiService.setUserEmail(email);
         }
       }
     };
