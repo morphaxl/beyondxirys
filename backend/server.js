@@ -30,18 +30,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend build in production
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the frontend build
-  app.use(express.static(path.join(__dirname, '../dist')));
-}
-
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -438,28 +426,13 @@ app.get('/api/irys/status', async (req, res) => {
 
 // ==================== ERROR HANDLING ====================
 
-// In production, serve the React app for all non-API routes
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    // Don't serve the React app for API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({
-        error: 'API endpoint not found',
-        message: `The endpoint ${req.method} ${req.originalUrl} does not exist`
-      });
-    }
-    
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Endpoint not found',
+    message: `The endpoint ${req.method} ${req.originalUrl} does not exist`
   });
-} else {
-  // 404 handler for development
-  app.use((req, res) => {
-    res.status(404).json({
-      error: 'Endpoint not found',
-      message: `The endpoint ${req.method} ${req.originalUrl} does not exist`
-    });
-  });
-}
+});
 
 // Global error handler
 app.use((error, req, res, next) => {
