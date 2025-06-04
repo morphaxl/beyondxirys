@@ -37,9 +37,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Always serve static files from the frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the frontend build
-  app.use(express.static(path.join(__dirname, '../dist')));
+  const staticPath = path.join(__dirname, '../dist');
+  console.log('📁 Serving static files from:', staticPath);
+  app.use(express.static(staticPath));
 }
 
 // Request logging middleware
@@ -449,7 +451,9 @@ if (process.env.NODE_ENV === 'production') {
       });
     }
 
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+    const indexPath = path.join(__dirname, '../dist/index.html');
+    console.log('📄 Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
   });
 } else {
   // 404 handler for development
