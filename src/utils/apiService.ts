@@ -1,24 +1,16 @@
-// API URL configuration
+// Use relative URLs for deployment (same server serves frontend and backend)
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const currentDomain = window.location.hostname;
 
-    // Deployed on Replit - backend serves frontend from same server with /api prefix
-    if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
-      return `${window.location.origin}/api`;
-    }
-
-    // Development environment - frontend on 5001, backend on 3001
-    if (currentDomain.includes('replit.dev')) {
-      // Extract base domain without port
-      const baseDomain = currentDomain.split(':')[0];
-      const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
-      return baseUrl;
+    // If deployed on Replit, use same domain (backend serves frontend)
+    if (currentDomain.includes('replit.app') || currentDomain.includes('replit.dev')) {
+      return window.location.origin;
     }
   }
 
-  // Development fallback
-  return 'http://localhost:3001/api';
+  // Development fallback (when frontend and backend are separate)
+  return 'http://localhost:3001';
 })();
 
 export interface Document {
@@ -61,12 +53,6 @@ export interface IrysStatus {
 }
 
 class ApiService {
-  private userEmail: string = '';
-
-  setUserEmail(email: string) {
-    this.userEmail = email;
-  }
-
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -97,7 +83,7 @@ class ApiService {
   async addDocument(url: string): Promise<Document> {
     const response = await this.makeRequest<{ success: boolean; document: Document }>('/documents/add', {
       method: 'POST',
-      body: JSON.stringify({ url, userEmail: this.userEmail }),
+      body: JSON.stringify({ url }),
     });
 
     if (!response.success) {
@@ -115,7 +101,7 @@ class ApiService {
       success: boolean; 
       documents: Document[]; 
       statistics: DocumentStats;
-    }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
+    }>('/documents');
 
     if (!response.success) {
       throw new Error('Failed to fetch documents');
@@ -195,7 +181,7 @@ class ApiService {
       documentsUsed: number;
     }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, includeDocuments, userEmail: this.userEmail }),
+      body: JSON.stringify({ message, includeDocuments }),
     });
 
     if (!response.success) {
@@ -342,15 +328,12 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Health endpoint is at root level, not under /api
-      const baseOrigin = API_BASE_URL.replace('/api', '');
-      const healthUrl = `${baseOrigin}/health`;
-      const response = await fetch(healthUrl, {
-        method: 'GET'
-      });
+      const healthUrl = import.meta.env.NODE_ENV === 'production' 
+        ? '/health'
+        : `${API_BASE_URL.replace('/api', '')}/health`;
+      const response = await fetch(healthUrl);
       return response.ok;
-    } catch (error) {
-      console.warn('Backend health check failed:', error);
+    } catch {
       return false;
     }
   }

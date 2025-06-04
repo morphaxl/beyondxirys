@@ -65,7 +65,7 @@ class IrysService {
    * Upload document to Irys with rich metadata tags
    * Following Irys docs pattern for tagging and metadata
    */
-  async uploadDocument(documentData, userId) {
+  async uploadDocument(documentData) {
     try {
       const uploader = await this.getUploader();
       
@@ -75,8 +75,7 @@ class IrysService {
         uploadedAt: new Date().toISOString(),
         serviceWallet: process.env.WALLET_ADDRESS,
         network: 'irys-devnet',
-        version: '1.0',
-        userId: userId // Add user association
+        version: '1.0'
       };
 
       // Rich metadata tags for better discoverability
@@ -90,8 +89,7 @@ class IrysService {
         { name: "Added-Date", value: new Date().toISOString() },
         { name: "Service-Wallet", value: process.env.WALLET_ADDRESS },
         { name: "Network", value: "irys-devnet" },
-        { name: "Retention", value: "60-days" },
-        { name: "User-ID", value: userId } // Add user ID tag for filtering
+        { name: "Retention", value: "60-days" }
       ];
 
       console.log('📤 Uploading document to Irys devnet...');

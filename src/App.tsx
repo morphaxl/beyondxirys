@@ -15,23 +15,23 @@ function App() {
 
   React.useEffect(() => {
     let isInitialized = false;
-
+    
     const initializeApp = async () => {
       if (isInitialized) return; // Prevent multiple initializations
-
+      
       try {
         // Initialize Beyond SDK first
         console.log('🚀 Initializing Beyond SDK...');
         await initializeBeyondSdk();
-
+        
         // Check authentication status
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
-
+          
           // Load existing documents from backend
           console.log('📚 Loading existing documents...');
           try {
@@ -43,7 +43,7 @@ function App() {
             // Don't fail the whole app if documents can't be loaded
           }
         }
-
+        
         isInitialized = true;
       } catch (error: any) {
         console.error('❌ App initialization failed:', error);
@@ -59,7 +59,7 @@ function App() {
         // Re-check auth state when coming back to the app
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
@@ -73,7 +73,7 @@ function App() {
         // Re-check auth state when window gets focus
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
@@ -82,11 +82,11 @@ function App() {
     };
 
     initializeApp();
-
+    
     // Add event listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
-
+    
     // Cleanup
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -151,33 +151,10 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    const handleLogin = async (email: string) => {
-    try {
-      setLoading(true);
-      setSdkError('');
-
-      // Initialize Beyond SDK with the user's email
-      await initializeBeyondSdk(email);
-
-      // Set user email in API service for user-specific requests
-      apiService.setUserEmail(email);
-
-      setUserEmail(email);
-      setIsAuthenticated(true);
-
-      // Load documents after authentication
-      // await loadDocuments(); // loadDocuments is not defined here
-    } catch (error: any) {
-      console.error('❌ Login failed:', error);
-      setSdkError(error.message || 'Authentication failed');
-    } finally {
-      setLoading(false);
-    }
-  };
     return (
       <div className="app">
         <AuthForm 
-          onAuthSuccess={handleLogin} 
+          onAuthSuccess={handleAuthSuccess} 
         />
       </div>
     );
