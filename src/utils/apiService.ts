@@ -1,11 +1,12 @@
 const getApiBaseUrl = () => {
-  // Check if we're running on a deployed Replit app (.replit.app domain)
-  const isProduction = typeof window !== 'undefined' && 
-                      (window.location.hostname.includes('.replit.app') || 
-                       window.location.hostname.includes('beyondnetwork.xyz'));
+  // Check if we're in production or on a deployed Replit app
+  const isProduction = import.meta.env.NODE_ENV === 'production' || 
+                      (typeof window !== 'undefined' && 
+                       (window.location.hostname.includes('.replit.app') || 
+                        window.location.hostname.includes('beyondnetwork.xyz')));
   
   if (isProduction) {
-    // In production deployment, use relative URLs since backend serves the frontend
+    // In production, use relative URLs since backend serves the frontend
     return '/api';
   }
   
@@ -337,10 +338,7 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const isProduction = typeof window !== 'undefined' && 
-                          (window.location.hostname.includes('.replit.app') || 
-                           window.location.hostname.includes('beyondnetwork.xyz'));
-      const healthUrl = isProduction 
+      const healthUrl = import.meta.env.NODE_ENV === 'production' 
         ? '/health'
         : API_BASE_URL.replace('/api', '/health');
       const response = await fetch(healthUrl);
