@@ -15,38 +15,35 @@ function App() {
 
   React.useEffect(() => {
     let isInitialized = false;
-
+    
     const initializeApp = async () => {
       if (isInitialized) return; // Prevent multiple initializations
-
+      
       try {
         // Initialize Beyond SDK first
         console.log('🚀 Initializing Beyond SDK...');
         await initializeBeyondSdk();
-
+        
         // Check authentication status
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
-
-          // Set user email in apiService immediately
-          apiService.setUserEmail(email);
-
+          
           // Load existing documents from backend
           console.log('📚 Loading existing documents...');
           try {
             const { documents: existingDocs } = await apiService.getAllDocuments();
-            console.log('✅ Loaded', existingDocs?.length || 0, 'existing documents');
-            setDocuments(existingDocs || []); // Ensure we always set an array
+            console.log('✅ Loaded', existingDocs.length, 'existing documents');
+            setDocuments(existingDocs);
           } catch (docError: any) {
             console.warn('⚠️ Could not load existing documents:', docError.message);
-            setDocuments([]); // Set empty array on error
+            // Don't fail the whole app if documents can't be loaded
           }
         }
-
+        
         isInitialized = true;
       } catch (error: any) {
         console.error('❌ App initialization failed:', error);
@@ -62,11 +59,10 @@ function App() {
         // Re-check auth state when coming back to the app
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
-          apiService.setUserEmail(email);
         }
       }
     };
@@ -77,21 +73,20 @@ function App() {
         // Re-check auth state when window gets focus
         const token = localStorage.getItem('beyond_auth_token');
         const email = localStorage.getItem('beyond_user_email');
-
+        
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
-          apiService.setUserEmail(email);
         }
       }
     };
 
     initializeApp();
-
+    
     // Add event listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
-
+    
     // Cleanup
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -99,6 +94,10 @@ function App() {
     };
   }, []); // Empty dependency array to prevent re-initialization
 
+  const handleAuthSuccess = (email: string) => {
+    setIsAuthenticated(true);
+    setUserEmail(email);
+  };
 
   const handleSignOut = () => {
     localStorage.removeItem('beyond_auth_token');
@@ -151,52 +150,11 @@ function App() {
     );
   }
 
-  const handleLoginSuccess = (email: string) => {
-    setIsAuthenticated(true);
-    setUserEmail(email);
-
-    // Set user email in apiService
-    apiService.setUserEmail(email);
-
-    setSdkError('');
-  };
-
-  // Load documents when user is authenticated
-  useEffect(() => {
-    const loadDocuments = async () => {
-      if (isAuthenticated && userEmail) {
-        try {
-          console.log('📚 Loading existing documents for user:', userEmail);
-
-          // Ensure user email is set in API service
-          apiService.setUserEmail(userEmail);
-
-          // Small delay to ensure backend is ready
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          const { documents: loadedDocs } = await apiService.getAllDocuments();
-          setDocuments(loadedDocs);
-          console.log('✅ Loaded', loadedDocs.length, 'existing documents');
-
-          if (loadedDocs.length === 0) {
-            console.log('📝 No documents found - user may need to add documents or they may not be persisting properly');
-          }
-        } catch (error) {
-          console.error('❌ Failed to load documents:', error);
-          // Set empty array on error to avoid undefined state
-          setDocuments([]);
-        }
-      }
-    };
-
-    loadDocuments();
-  }, [isAuthenticated, userEmail]);
-
   if (!isAuthenticated) {
     return (
       <div className="app">
         <AuthForm 
-          onAuthSuccess={handleLoginSuccess}
+          onAuthSuccess={handleAuthSuccess} 
         />
       </div>
     );

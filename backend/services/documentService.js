@@ -3,26 +3,16 @@ import { irysService } from './irysService.js';
 
 class DocumentService {
   constructor() {
-    this.userDocuments = new Map(); // Map of userId -> Map of documents
-  }
-
-  /**
-   * Get user's document map, creating if it doesn't exist
-   */
-  getUserDocuments(userId) {
-    if (!this.userDocuments.has(userId)) {
-      this.userDocuments.set(userId, new Map());
-    }
-    return this.userDocuments.get(userId);
+    this.documents = new Map(); // In-memory cache for quick access
   }
 
   /**
    * Add a document by URL - complete pipeline from scraping to Irys storage
    */
-  async addDocument(url, userId) {
+  async addDocument(url) {
     try {
       console.log('📋 Starting document processing pipeline for:', url);
-
+      
       // Step 1: Validate URL
       if (!scraperService.isValidUrl(url)) {
         throw new Error('Invalid URL provided');
@@ -31,7 +21,7 @@ class DocumentService {
       // Step 2: Scrape content
       console.log('🔍 Step 1: Scraping content...');
       const scrapedData = await scraperService.scrapeUrl(url);
-
+      
       // Step 3: Prepare document for storage
       console.log('📦 Step 2: Preparing document for storage...');
       const document = {
@@ -43,8 +33,8 @@ class DocumentService {
 
       // Step 4: Upload to Irys
       console.log('🌐 Step 3: Uploading to Irys...');
-      const irysResult = await irysService.uploadDocument(document, userId);
-
+      const irysResult = await irysService.uploadDocument(document);
+      
       // Step 5: Update document with Irys information
       document.irysId = irysResult.id;
       document.irysUrl = irysResult.url;
@@ -52,18 +42,8 @@ class DocumentService {
       document.status = 'stored';
       document.storedAt = irysResult.timestamp;
 
-      // Step 6: Cache the document for the specific user
-      const userDocs = this.getUserDocuments(userId);
-      userDocs.set(document.id, document);
-
-      // Step 7: Update user index on Irys for persistence
-      console.log('📝 Step 4: Updating user document index...');
-      await this.updateUserIndex(userId, {
-        id: document.id,
-        irysId: document.irysId,
-        title: document.title,
-        addedAt: document.addedAt
-      });
+      // Step 6: Cache the document
+      this.documents.set(document.id, document);
 
       console.log('✅ Document processing completed successfully!');
       console.log('🆔 Document ID:', document.id);
@@ -88,105 +68,30 @@ class DocumentService {
   }
 
   /**
-   * Get all documents (from cache and Irys with user filtering)
+   * Get all documents (from cache and potentially from Irys)
    */
-  async getAllDocuments(userEmail) {
+  async getAllDocuments() {
     try {
-      console.log(`📚 Getting all documents for user: ${userEmail}`);
-
-      let documents = [];
+      console.log('📚 Retrieving all documents...');
       
-      // Get or create user documents map
-      if (!this.userDocuments.has(userEmail)) {
-        this.userDocuments.set(userEmail, new Map());
-      }
-      const userDocsMap = this.userDocuments.get(userEmail);
-
-      // Always try to retrieve from Irys user index first
-      console.log('📥 Checking for stored user index on Irys...');
-      try {
-        const userIndexDoc = await this.retrieveUserIndex(userEmail);
-        if (userIndexDoc && userIndexDoc.documentIds && userIndexDoc.documentIds.length > 0) {
-          console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
-          
-          // Clear existing cache and rebuild from Irys
-          userDocsMap.clear();
-          
-          // Retrieve each document from Irys
-          for (const docInfo of userIndexDoc.documentIds) {
-            try {
-              const doc = await irysService.retrieveDocument(docInfo.irysId);
-              // Ensure document has proper structure
-              const processedDoc = {
-                id: doc.id || docInfo.id,
-                title: doc.title || 'Untitled Document',
-                url: doc.url || '',
-                summary: doc.summary || '',
-                irysId: docInfo.irysId,
-                irysUrl: `https://gateway.irys.xyz/${docInfo.irysId}`,
-                addedAt: doc.addedAt || docInfo.addedAt,
-                contentLength: doc.contentLength || 0,
-                wordCount: doc.wordCount || 0,
-                content: doc.content || '',
-                metadata: doc.metadata || {}
-              };
-              
-              // Add to cache and results
-              userDocsMap.set(processedDoc.id, processedDoc);
-              documents.push(processedDoc);
-              console.log(`✅ Retrieved and cached document: ${processedDoc.title}`);
-            } catch (docError) {
-              console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
-            }
-          }
-          
-          console.log(`✅ Successfully loaded ${documents.length} documents from Irys`);
-        } else {
-          console.log('📝 No user index found on Irys for this user');
-          // Use cache if available
-          documents = Array.from(userDocsMap.values());
-        }
-      } catch (indexError) {
-        console.log('📝 Error retrieving user index, using cache:', indexError.message);
-        // Use cache if Irys retrieval fails
-        documents = Array.from(userDocsMap.values());
-      }
-
-      // Ensure all documents have proper structure with id field
-      const validDocuments = documents.map(doc => ({
-        id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        title: doc.title || 'Untitled Document',
-        url: doc.url || '',
-        summary: doc.summary || '',
-        irysId: doc.irysId || '',
-        irysUrl: doc.irysUrl || '',
-        addedAt: doc.addedAt || new Date().toISOString(),
-        contentLength: doc.contentLength || 0,
-        wordCount: doc.wordCount || 0,
-        metadata: {
-          domain: doc.metadata?.domain || '',
-          description: doc.metadata?.description || '',
-          author: doc.metadata?.author || '',
-          publishDate: doc.metadata?.publishDate || '',
-          tags: doc.metadata?.tags || [],
-          language: doc.metadata?.language || 'en'
-        }
+      const documents = Array.from(this.documents.values()).map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        url: doc.url,
+        summary: doc.summary,
+        irysId: doc.irysId,
+        irysUrl: doc.irysUrl,
+        addedAt: doc.addedAt,
+        contentLength: doc.contentLength,
+        wordCount: doc.wordCount,
+        metadata: doc.metadata,
+        status: doc.status
       }));
 
-      const statistics = {
-        totalDocuments: validDocuments.length,
-        totalWords: validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
-        totalCharacters: validDocuments.reduce((sum, doc) => sum + (doc.contentLength || 0), 0),
-        domains: [...new Set(validDocuments.map(doc => doc.metadata?.domain).filter(Boolean))],
-        averageWordsPerDocument: validDocuments.length > 0 
-          ? Math.round(validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0) / validDocuments.length)
-          : 0
-      };
-
-      console.log(`✅ Found ${validDocuments.length} documents for user`);
-      return { documents: validDocuments, statistics };
+      console.log('✅ Retrieved', documents.length, 'documents');
+      return documents;
     } catch (error) {
-      console.error('❌ Error getting documents:', error);
+      console.error('❌ Failed to get documents:', error.message);
       throw error;
     }
   }
@@ -194,15 +99,14 @@ class DocumentService {
   /**
    * Get a specific document by ID
    */
-  async getDocument(documentId, userId) {
+  async getDocument(documentId) {
     try {
-      console.log('📄 Retrieving document:', documentId, 'for user:', userId);
-
-      // Check user's documents first
-      const userDocs = this.getUserDocuments(userId);
-      if (userDocs.has(documentId)) {
-        console.log('✅ Document found in user cache');
-        return userDocs.get(documentId);
+      console.log('📄 Retrieving document:', documentId);
+      
+      // Check cache first
+      if (this.documents.has(documentId)) {
+        console.log('✅ Document found in cache');
+        return this.documents.get(documentId);
       }
 
       // If not in cache, could implement Irys retrieval here
@@ -236,15 +140,14 @@ class DocumentService {
   /**
    * Search documents by query (simple text search)
    */
-  async searchDocuments(query, userId) {
+  async searchDocuments(query) {
     try {
-      console.log('🔍 Searching documents for:', query, 'user:', userId);
-
+      console.log('🔍 Searching documents for:', query);
+      
       const searchTerm = query.toLowerCase();
       const results = [];
-      const userDocs = this.getUserDocuments(userId);
 
-      for (const document of userDocs.values()) {
+      for (const document of this.documents.values()) {
         const score = this.calculateRelevanceScore(document, searchTerm);
         if (score > 0) {
           results.push({
@@ -268,11 +171,11 @@ class DocumentService {
   /**
    * Get documents for AI context based on a query
    */
-  async getRelevantDocuments(query, userId, limit = 5) {
+  async getRelevantDocuments(query, limit = 5) {
     try {
-      console.log('🤖 Getting relevant documents for AI context:', query, 'user:', userId);
-
-      const searchResults = await this.searchDocuments(query, userId);
+      console.log('🤖 Getting relevant documents for AI context:', query);
+      
+      const searchResults = await this.searchDocuments(query);
       const relevantDocs = searchResults.slice(0, limit).map(doc => ({
         title: doc.title,
         url: doc.url,
@@ -292,18 +195,17 @@ class DocumentService {
   /**
    * Remove a document
    */
-  async removeDocument(documentId, userId) {
+  async removeDocument(documentId) {
     try {
-      console.log('🗑️ Removing document:', documentId, 'for user:', userId);
-
-      const userDocs = this.getUserDocuments(userId);
-      if (!userDocs.has(documentId)) {
+      console.log('🗑️ Removing document:', documentId);
+      
+      if (!this.documents.has(documentId)) {
         throw new Error('Document not found');
       }
 
-      userDocs.delete(documentId);
+      this.documents.delete(documentId);
       console.log('✅ Document removed successfully');
-
+      
       return { success: true, message: 'Document removed' };
     } catch (error) {
       console.error('❌ Failed to remove document:', error.message);
@@ -314,10 +216,9 @@ class DocumentService {
   /**
    * Get document statistics
    */
-  getStatistics(userId) {
-    const userDocs = this.getUserDocuments(userId);
-    const docs = Array.from(userDocs.values());
-
+  getStatistics() {
+    const docs = Array.from(this.documents.values());
+    
     return {
       totalDocuments: docs.length,
       totalWords: docs.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
@@ -332,7 +233,7 @@ class DocumentService {
    */
   calculateRelevanceScore(document, searchTerm) {
     let score = 0;
-
+    
     // Title match (highest weight)
     if (document.title.toLowerCase().includes(searchTerm)) {
       score += 10;
@@ -371,10 +272,9 @@ class DocumentService {
   /**
    * Get all document content for AI training/context
    */
-  async getAllDocumentContent(userId) {
+  async getAllDocumentContent() {
     try {
-      const userDocs = this.getUserDocuments(userId);
-      const documents = Array.from(userDocs.values());
+      const documents = Array.from(this.documents.values());
       return documents.map(doc => ({
         id: doc.id,
         title: doc.title,
@@ -388,166 +288,6 @@ class DocumentService {
       throw error;
     }
   }
-
-  /**
-   * Get all documents for a user (async version for API)
-   */
-  async getAllDocuments(userId) {
-    try {
-      console.log(`📚 Getting all documents for user: ${userId}`);
-
-      // Get from memory cache first
-      const userDocsMap = this.userDocuments.get(userId) || new Map();
-      let documents = Array.from(userDocsMap.values());
-
-      // If no documents in cache, try to retrieve from Irys user index
-      if (documents.length === 0) {
-        console.log('📥 No cached documents, checking for stored user index...');
-        try {
-          const userIndexDoc = await this.retrieveUserIndex(userId);
-          if (userIndexDoc && userIndexDoc.documentIds) {
-            console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
-            
-            // Retrieve each document from Irys
-            for (const docInfo of userIndexDoc.documentIds) {
-              try {
-                const doc = await irysService.retrieveDocument(docInfo.irysId);
-                // Add to cache
-                userDocsMap.set(doc.id, doc);
-                documents.push(doc);
-                console.log(`✅ Retrieved document from Irys: ${doc.title}`);
-              } catch (docError) {
-                console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
-              }
-            }
-          }
-        } catch (indexError) {
-          console.log('📝 No existing user index found, will create on first document add');
-        }
-      }
-
-      // Ensure all documents have proper structure with id field
-      const validDocuments = documents.map(doc => ({
-        id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        title: doc.title || 'Untitled Document',
-        url: doc.url || '',
-        summary: doc.summary || '',
-        irysId: doc.irysId || '',
-        irysUrl: doc.irysUrl || '',
-        addedAt: doc.addedAt || new Date().toISOString(),
-        contentLength: doc.contentLength || 0,
-        wordCount: doc.wordCount || 0,
-        metadata: {
-          domain: doc.metadata?.domain || '',
-          description: doc.metadata?.description || '',
-          author: doc.metadata?.author || '',
-          publishDate: doc.metadata?.publishDate || '',
-          tags: doc.metadata?.tags || [],
-          language: doc.metadata?.language || 'en'
-        }
-      }));
-
-      const statistics = {
-        totalDocuments: validDocuments.length,
-        totalWords: validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
-        totalCharacters: validDocuments.reduce((sum, doc) => sum + (doc.contentLength || 0), 0),
-        domains: [...new Set(validDocuments.map(doc => doc.metadata?.domain).filter(Boolean))],
-        averageWordsPerDocument: validDocuments.length > 0 
-          ? Math.round(validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0) / validDocuments.length)
-          : 0
-      };
-
-      console.log(`✅ Found ${validDocuments.length} documents for user`);
-      return { documents: validDocuments, statistics };
-    } catch (error) {
-      console.error('❌ Error getting documents:', error);
-      return { 
-        documents: [], 
-        statistics: {
-          totalDocuments: 0,
-          totalWords: 0,
-          totalCharacters: 0,
-          domains: [],
-          averageWordsPerDocument: 0
-        }
-      };
-    }
-  }
-
-  /**
-   * Update user document index on Irys for persistence across server restarts
-   */
-  async updateUserIndex(userId, newDocumentInfo) {
-    try {
-      console.log('📝 Updating user document index for:', userId);
-
-      // Try to retrieve existing user index
-      let userIndex = { 
-        userId, 
-        documentIds: [], 
-        lastUpdated: new Date().toISOString(),
-        version: '1.0'
-      };
-      
-      try {
-        const existingIndex = await this.retrieveUserIndex(userId);
-        if (existingIndex && existingIndex.documentIds) {
-          userIndex = existingIndex;
-          console.log(`📋 Found existing index with ${userIndex.documentIds.length} documents`);
-        }
-      } catch (error) {
-        console.log('📄 Creating new user index (no existing index found)');
-      }
-
-      // Check if document already exists in index
-      const existingDocIndex = userIndex.documentIds.findIndex(doc => doc.id === newDocumentInfo.id);
-      if (existingDocIndex >= 0) {
-        // Update existing document info
-        userIndex.documentIds[existingDocIndex] = newDocumentInfo;
-        console.log('📝 Updated existing document in index');
-      } else {
-        // Add new document to index
-        userIndex.documentIds.push(newDocumentInfo);
-        console.log('➕ Added new document to index');
-      }
-
-      userIndex.lastUpdated = new Date().toISOString();
-
-      // Upload updated index to Irys
-      const indexResult = await irysService.uploadUserIndex(userIndex, userId);
-      
-      console.log('✅ User document index updated successfully');
-      console.log('🆔 Index Irys ID:', indexResult.id);
-      console.log('📊 Total documents in index:', userIndex.documentIds.length);
-
-      return indexResult;
-    } catch (error) {
-      console.error('❌ Failed to update user index:', error);
-      // Don't throw here - document is already stored, index is just for optimization
-    }
-  }
-
-  /**
-   * Retrieve user document index from Irys
-   */
-  async retrieveUserIndex(userId) {
-    try {
-      // In a production system, you'd store the user index ID in a database
-      // For now, we'll use a deterministic approach or search by tags
-      const userIndexId = await irysService.findUserIndex(userId);
-      
-      if (userIndexId) {
-        const userIndex = await irysService.retrieveDocument(userIndexId);
-        console.log('✅ Retrieved user index from Irys');
-        return userIndex;
-      }
-      
-      return null;
-    } catch (error) {
-      console.log('📄 No user index found or failed to retrieve');
-      return null;
-    }
-  }
 }
 
-export const documentService = new DocumentService();
+export const documentService = new DocumentService(); 

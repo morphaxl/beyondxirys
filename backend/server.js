@@ -68,7 +68,7 @@ app.get('/health', (req, res) => {
 app.post('/api/documents/add', async (req, res) => {
   try {
     const { url } = req.body;
-
+    
     if (!url) {
       return res.status(400).json({ 
         error: 'URL is required',
@@ -77,9 +77,9 @@ app.post('/api/documents/add', async (req, res) => {
     }
 
     console.log('📋 Processing new document request:', url);
-
+    
     const document = await documentService.addDocument(url);
-
+    
     res.status(201).json({
       success: true,
       message: 'Document added successfully',
@@ -100,29 +100,15 @@ app.post('/api/documents/add', async (req, res) => {
  */
 app.get('/api/documents', async (req, res) => {
   try {
-    const { userEmail } = req.query;
-
-    if (!userEmail) {
-      return res.status(400).json({
-        error: 'User email is required',
-        message: 'Please provide userEmail parameter'
-      });
-    }
-
-    console.log('📚 Getting documents for user:', userEmail);
-
-    const result = await documentService.getAllDocuments(userEmail);
-
+    console.log('📚 Fetching all documents...');
+    
+    const documents = await documentService.getAllDocuments();
+    const stats = documentService.getStatistics();
+    
     res.json({
       success: true,
-      documents: result.documents || [],
-      statistics: result.statistics || {
-        totalDocuments: 0,
-        totalWords: 0,
-        totalCharacters: 0,
-        domains: [],
-        averageWordsPerDocument: 0
-      }
+      documents,
+      statistics: stats
     });
   } catch (error) {
     console.error('❌ Error fetching documents:', error.message);
@@ -141,9 +127,9 @@ app.get('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log('📄 Fetching document:', id);
-
+    
     const document = await documentService.getDocument(id);
-
+    
     res.json({
       success: true,
       document
@@ -164,7 +150,7 @@ app.get('/api/documents/:id', async (req, res) => {
 app.get('/api/documents/search', async (req, res) => {
   try {
     const { q: query } = req.query;
-
+    
     if (!query) {
       return res.status(400).json({
         error: 'Search query is required',
@@ -173,9 +159,9 @@ app.get('/api/documents/search', async (req, res) => {
     }
 
     console.log('🔍 Searching documents for:', query);
-
+    
     const results = await documentService.searchDocuments(query);
-
+    
     res.json({
       success: true,
       query,
@@ -199,9 +185,9 @@ app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log('🗑️ Deleting document:', id);
-
+    
     const result = await documentService.removeDocument(id);
-
+    
     res.json({
       success: true,
       message: result.message
@@ -224,8 +210,8 @@ app.delete('/api/documents/:id', async (req, res) => {
  */
 app.post('/api/chat/message', async (req, res) => {
   try {
-    const { message, includeDocuments = true, userEmail } = req.body;
-
+    const { message, includeDocuments = true } = req.body;
+    
     if (!message) {
       return res.status(400).json({
         error: 'Message is required',
@@ -233,46 +219,45 @@ app.post('/api/chat/message', async (req, res) => {
       });
     }
 
-    if (!userEmail) {
-      return res.status(400).json({
-        error: 'User email is required',
-        message: 'Please provide userEmail in request body'
-      });
-    }
-
-    console.log('🤖 Processing chat message:', message, 'for user:', userEmail);
-
+    console.log('🤖 Processing chat message:', message);
+    
     let documentContext = [];
-    let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys blockchain. You help users with questions about their stored documents and general knowledge.
+    let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys. Your role is to:
 
-Key capabilities:
-- Access to user's permanently stored documents
-- Ability to search and reference document content
-- Provide citations and sources when using document information
-- Help with analysis, summaries, and insights from stored content
+1. **Document Knowledge Base Assistant**: Help users understand, analyze, and extract insights from their stored documents
+2. **Content Analyzer**: Provide summaries, explanations, and answer questions about document content
+3. **Research Helper**: Connect information across multiple documents and provide comprehensive responses
+4. **Information Organizer**: Help users organize and make sense of their collected knowledge
 
-Always be helpful, accurate, and cite your sources when referencing user documents.`;
+When responding:
+- Reference specific documents when relevant and cite them by title
+- Quote or paraphrase relevant content from the stored documents
+- If asked about topics covered in the documents, provide detailed answers based on the actual content
+- If asked about topics not covered in the documents, clearly state that and provide general knowledge
+- Help users discover connections between different documents
+- Suggest questions they might want to explore based on their document collection
 
-    // Get all documents for context if requested
+You have access to permanently stored documents that users have added to build their knowledge base.`;
+    
     if (includeDocuments) {
-      try {
-        console.log('📚 Fetching all documents for AI context...');
-        const allDocuments = await documentService.getAllDocumentContent(userEmail);
-
-        if (allDocuments.length > 0) {
-          documentContext = allDocuments.map(doc => ({
-            title: doc.title,
-            url: doc.url,
-            summary: doc.summary,
-            content: doc.content, // Full content, not truncated
-            addedAt: doc.addedAt
-          }));
-
-          console.log('📚 Providing AI with', documentContext.length, 'documents');
-          console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
-
-          // Enhanced system prompt with document context
-          systemPrompt += `
+      // Get ALL document content for comprehensive context
+      console.log('📚 Retrieving full document content for AI context...');
+      const allDocuments = await documentService.getAllDocumentContent();
+      
+      if (allDocuments.length > 0) {
+        documentContext = allDocuments.map(doc => ({
+          title: doc.title,
+          url: doc.url,
+          summary: doc.summary,
+          content: doc.content, // Full content, not truncated
+          addedAt: doc.addedAt
+        }));
+        
+        console.log('📚 Providing AI with', documentContext.length, 'documents');
+        console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
+        
+        // Enhanced system prompt with document context
+        systemPrompt += `
 
 IMPORTANT: You currently have access to ${documentContext.length} documents in the user's knowledge base:
 
@@ -282,15 +267,12 @@ ${index + 1}. **"${doc.title}"**
    - Added: ${new Date(doc.addedAt).toLocaleDateString()}
    - Summary: ${doc.summary}
    - Full Content: ${doc.content}
-
+   
 ---`).join('\n')}
 
 Use this content to provide accurate, detailed responses. Always cite which document(s) you're referencing.`;
-        } else {
-          systemPrompt += '\n\nNote: The user has not added any documents to their knowledge base yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.';
-        }
-      } catch (err) {
-        console.error("Error getting all document content", err)
+      } else {
+        systemPrompt += '\n\nNote: The user has not added any documents to their knowledge base yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.';
       }
     }
 
@@ -322,7 +304,7 @@ Use this content to provide accurate, detailed responses. Always cite which docu
 app.get('/api/chat/context', async (req, res) => {
   try {
     const { q: query } = req.query;
-
+    
     if (!query) {
       return res.status(400).json({
         error: 'Query is required',
@@ -331,9 +313,9 @@ app.get('/api/chat/context', async (req, res) => {
     }
 
     console.log('🤖 Getting document context for:', query);
-
-    const context = await documentService.getRelevantDocuments(query, req.user.id, 10);
-
+    
+    const context = await documentService.getRelevantDocuments(query, 10);
+    
     res.json({
       success: true,
       query,
@@ -358,9 +340,9 @@ app.get('/api/chat/context', async (req, res) => {
 app.get('/api/irys/balance', async (req, res) => {
   try {
     console.log('💰 Checking Irys service wallet balance...');
-
+    
     const balanceInfo = await irysService.checkBalance();
-
+    
     res.json({
       success: true,
       balance: balanceInfo
@@ -381,9 +363,9 @@ app.get('/api/irys/balance', async (req, res) => {
 app.get('/api/irys/wallet', async (req, res) => {
   try {
     console.log('🔍 Getting Irys service wallet info...');
-
+    
     const walletInfo = await irysService.getWalletInfo();
-
+    
     res.json({
       success: true,
       wallet: walletInfo
@@ -405,11 +387,11 @@ app.get('/api/irys/wallet', async (req, res) => {
 app.post('/api/irys/fund', async (req, res) => {
   try {
     const { amount = 0.01 } = req.body;
-
+    
     console.log('💸 Funding Irys service wallet with', amount, 'ETH...');
-
+    
     const fundResult = await irysService.fundWallet(amount);
-
+    
     res.json({
       success: true,
       message: 'Wallet funded successfully',
@@ -431,10 +413,10 @@ app.post('/api/irys/fund', async (req, res) => {
 app.get('/api/irys/status', async (req, res) => {
   try {
     console.log('🔍 Checking Irys service status...');
-
+    
     const walletInfo = await irysService.getWalletInfo();
     const stats = documentService.getStatistics();
-
+    
     res.json({
       success: true,
       status: 'operational',
@@ -466,7 +448,7 @@ app.get('*', (req, res) => {
       message: `The endpoint ${req.method} ${req.originalUrl} does not exist`
     });
   }
-
+  
   // Serve React app for all other routes
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
@@ -494,11 +476,11 @@ async function startServer() {
   try {
     console.log('🚀 Starting Document Knowledge Base API...');
     console.log('📍 Environment:', process.env.NODE_ENV || 'development');
-
+    
     // Initialize Irys service
     console.log('🔧 Initializing Irys service...');
     await irysService.initialize();
-
+    
     // Start server
     const HOST = process.env.HOST || '0.0.0.0';
     app.listen(PORT, HOST, () => {
@@ -530,4 +512,4 @@ process.on('SIGINT', () => {
 });
 
 // Start the server
-startServer();
+startServer(); 

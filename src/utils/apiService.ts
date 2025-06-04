@@ -1,24 +1,16 @@
-// API URL configuration
+// Use relative URLs for deployment (same server serves frontend and backend)
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const currentDomain = window.location.hostname;
 
-    // Deployed on Replit - backend serves frontend from same server with /api prefix
-    if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
-      return `${window.location.origin}/api`;
-    }
-
-    // Development environment - frontend on 5001, backend on 3001
-    if (currentDomain.includes('replit.dev')) {
-      // Extract base domain without port
-      const baseDomain = currentDomain.split(':')[0];
-      const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
-      return baseUrl;
+    // If deployed on Replit, use same domain (backend serves frontend)
+    if (currentDomain.includes('replit.app') || currentDomain.includes('replit.dev')) {
+      return window.location.origin;
     }
   }
 
-  // Development fallback
-  return 'http://localhost:3001/api';
+  // Development fallback (when frontend and backend are separate)
+  return 'http://localhost:3001';
 })();
 
 export interface Document {
@@ -61,12 +53,6 @@ export interface IrysStatus {
 }
 
 class ApiService {
-  private userEmail: string = '';
-
-  setUserEmail(email: string) {
-    this.userEmail = email;
-  }
-
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -95,16 +81,9 @@ class ApiService {
    * Add a new document by URL
    */
   async addDocument(url: string): Promise<Document> {
-    if (!this.userEmail) {
-      throw new Error('User email not set');
-    }
-
     const response = await this.makeRequest<{ success: boolean; document: Document }>('/documents/add', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url, userEmail: this.userEmail }),
+      body: JSON.stringify({ url }),
     });
 
     if (!response.success) {
@@ -115,66 +94,30 @@ class ApiService {
   }
 
   /**
-   * Get all documents for the current user
+   * Get all documents
    */
-  async getAllDocuments(): Promise<{
-    documents: Document[];
-    statistics: DocumentStats;
-  }> {
-    if (!this.userEmail) {
-      throw new Error('User email not set');
+  async getAllDocuments(): Promise<{ documents: Document[]; statistics: DocumentStats }> {
+    const response = await this.makeRequest<{ 
+      success: boolean; 
+      documents: Document[]; 
+      statistics: DocumentStats;
+    }>('/documents');
+
+    if (!response.success) {
+      throw new Error('Failed to fetch documents');
     }
 
-    try {
-      const response = await this.makeRequest<{
-        success: boolean;
-        documents: Document[];
-        statistics: DocumentStats;
-      }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
-
-      if (!response.success) {
-        throw new Error('Failed to fetch documents');
-      }
-
-      // Ensure we always return arrays and proper structure
-      const documents = Array.isArray(response.documents) ? response.documents : [];
-      const statistics = response.statistics || {
-        totalDocuments: 0,
-        totalWords: 0,
-        totalCharacters: 0,
-        domains: [],
-        averageWordsPerDocument: 0
-      };
-
-      console.log(`📚 API Service: Retrieved ${documents.length} documents for user`);
-
-      return { documents, statistics };
-    } catch (error: any) {
-      console.warn('⚠️ Failed to fetch documents from backend:', error.message);
-
-      // Return empty but valid structure on error
-      return {
-        documents: [],
-        statistics: {
-          totalDocuments: 0,
-          totalWords: 0,
-          totalCharacters: 0,
-          domains: [],
-          averageWordsPerDocument: 0
-        }
-      };
-    }
+    return {
+      documents: response.documents,
+      statistics: response.statistics
+    };
   }
 
   /**
    * Get a specific document by ID
    */
   async getDocument(id: string): Promise<Document> {
-    if (!this.userEmail) {
-      throw new Error('User email not set');
-    }
-
-    const response = await this.makeRequest<{ success: boolean; document: Document }>(`/documents/${id}?userEmail=${encodeURIComponent(this.userEmail)}`);
+    const response = await this.makeRequest<{ success: boolean; document: Document }>(`/documents/${id}`);
 
     if (!response.success) {
       throw new Error('Document not found');
@@ -187,15 +130,11 @@ class ApiService {
    * Search documents
    */
   async searchDocuments(query: string): Promise<Document[]> {
-    if (!this.userEmail) {
-      throw new Error('User email not set');
-    }
-
     const response = await this.makeRequest<{ 
       success: boolean; 
       results: Document[]; 
       count: number;
-    }>(`/documents/search?q=${encodeURIComponent(query)}&userEmail=${encodeURIComponent(this.userEmail)}`);
+    }>(`/documents/search?q=${encodeURIComponent(query)}`);
 
     if (!response.success) {
       throw new Error('Search failed');
@@ -208,13 +147,8 @@ class ApiService {
    * Delete a document
    */
   async deleteDocument(id: string): Promise<void> {
-    if (!this.userEmail) {
-      throw new Error('User email not set');
-    }
-
     const response = await this.makeRequest<{ success: boolean }>(`/documents/${id}`, {
       method: 'DELETE',
-      body: JSON.stringify({ userEmail: this.userEmail }),
     });
 
     if (!response.success) {
@@ -247,7 +181,7 @@ class ApiService {
       documentsUsed: number;
     }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, includeDocuments, userEmail: this.userEmail }),
+      body: JSON.stringify({ message, includeDocuments }),
     });
 
     if (!response.success) {
@@ -394,15 +328,12 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Health endpoint is at root level, not under /api
-      const baseOrigin = API_BASE_URL.replace('/api', '');
-      const healthUrl = `${baseOrigin}/health`;
-      const response = await fetch(healthUrl, {
-        method: 'GET'
-      });
+      const healthUrl = import.meta.env.NODE_ENV === 'production' 
+        ? '/health'
+        : `${API_BASE_URL.replace('/api', '')}/health`;
+      const response = await fetch(healthUrl);
       return response.ok;
-    } catch (error) {
-      console.warn('Backend health check failed:', error);
+    } catch {
       return false;
     }
   }
