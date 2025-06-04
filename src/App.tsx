@@ -94,10 +94,6 @@ function App() {
     };
   }, []); // Empty dependency array to prevent re-initialization
 
-  const handleAuthSuccess = (email: string) => {
-    setIsAuthenticated(true);
-    setUserEmail(email);
-  };
 
   const handleSignOut = () => {
     localStorage.removeItem('beyond_auth_token');
@@ -177,7 +173,7 @@ function App() {
     return (
       <div className="app">
         <AuthForm 
-          onAuthSuccess={handleLogin} 
+          onAuthSuccess={() => setIsAuthenticated(true)}
         />
       </div>
     );
