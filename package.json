@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start:production": "npm run build && npm run preview"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@Beyond-Network-AI/beyond-ai": "file:beyond-ai-sdk",

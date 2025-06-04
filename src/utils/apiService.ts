@@ -1,31 +1,17 @@
 const getApiBaseUrl = () => {
-  // For production deployment
-  if (window.location.hostname.includes('replit.app') || window.location.hostname.includes('beyondnetwork.xyz')) {
-    return `https://${window.location.hostname}/api`;
+  if (import.meta.env.NODE_ENV === 'production') {
+    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
-
-  // For development on picard domains
-  if (window.location.hostname.includes('picard.replit.dev')) {
-    return `https://${window.location.hostname}:3001/api`;
-  }
-
-  // Environment variable override
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL.startsWith('http') 
-      ? import.meta.env.VITE_API_BASE_URL 
-      : `https://${import.meta.env.VITE_API_BASE_URL}`;
-  }
-
-  // Fallback for development
-  const host = import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
+  
+  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
+  const host = import.meta.env.VITE_BACKEND_HOST || 
+               (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
+                 ? window.location.hostname 
+                 : 'localhost');
   const port = import.meta.env.VITE_BACKEND_PORT || '3001';
-
-  // Use HTTPS for deployed domains, HTTP for localhost
-  const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
-  const baseUrl = `${protocol}://${host}:${port}/api`;
-
-  console.log('🔗 API Base URL:', baseUrl);
-  return baseUrl;
+  const protocol = host.includes('replit.dev') ? 'https' : 'http';
+  
+  return `${protocol}://${host}:${port}/api`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
