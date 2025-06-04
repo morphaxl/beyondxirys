@@ -37,27 +37,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Always serve static files from the frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  // dist is at project root, one level up from backend/
-  const staticPath = path.join(__dirname, '../dist');
-  console.log('📁 Serving static files from:', staticPath);
-  console.log('📁 __dirname:', __dirname);
-  console.log('📁 Full static path:', path.resolve(staticPath));
-  
-  // Check if the dist directory exists
-  import fs from 'fs';
-  if (fs.existsSync(path.resolve(staticPath))) {
-    app.use(express.static(staticPath, {
-      maxAge: '1d',
-      etag: false
-    }));
-    console.log('✅ Static files middleware configured successfully');
-  } else {
-    console.error('❌ Static files directory not found:', path.resolve(staticPath));
-    console.log('📋 Available files in backend directory:', fs.readdirSync(__dirname));
-    console.log('📋 Available files in parent directory:', fs.readdirSync(path.join(__dirname, '..')));
-  }
+  // Serve static files from the frontend build
+  app.use(express.static(path.join(__dirname, '../dist')));
 }
 
 // Request logging middleware
@@ -85,7 +67,7 @@ app.get('/health', (req, res) => {
 app.post('/api/documents/add', async (req, res) => {
   try {
     const { url } = req.body;
-
+    
     if (!url) {
       return res.status(400).json({ 
         error: 'URL is required',
@@ -94,9 +76,9 @@ app.post('/api/documents/add', async (req, res) => {
     }
 
     console.log('📋 Processing new document request:', url);
-
+    
     const document = await documentService.addDocument(url);
-
+    
     res.status(201).json({
       success: true,
       message: 'Document added successfully',
@@ -118,10 +100,10 @@ app.post('/api/documents/add', async (req, res) => {
 app.get('/api/documents', async (req, res) => {
   try {
     console.log('📚 Fetching all documents...');
-
+    
     const documents = await documentService.getAllDocuments();
     const stats = documentService.getStatistics();
-
+    
     res.json({
       success: true,
       documents,
@@ -144,9 +126,9 @@ app.get('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log('📄 Fetching document:', id);
-
+    
     const document = await documentService.getDocument(id);
-
+    
     res.json({
       success: true,
       document
@@ -167,7 +149,7 @@ app.get('/api/documents/:id', async (req, res) => {
 app.get('/api/documents/search', async (req, res) => {
   try {
     const { q: query } = req.query;
-
+    
     if (!query) {
       return res.status(400).json({
         error: 'Search query is required',
@@ -176,9 +158,9 @@ app.get('/api/documents/search', async (req, res) => {
     }
 
     console.log('🔍 Searching documents for:', query);
-
+    
     const results = await documentService.searchDocuments(query);
-
+    
     res.json({
       success: true,
       query,
@@ -202,9 +184,9 @@ app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log('🗑️ Deleting document:', id);
-
+    
     const result = await documentService.removeDocument(id);
-
+    
     res.json({
       success: true,
       message: result.message
@@ -228,7 +210,7 @@ app.delete('/api/documents/:id', async (req, res) => {
 app.post('/api/chat/message', async (req, res) => {
   try {
     const { message, includeDocuments = true } = req.body;
-
+    
     if (!message) {
       return res.status(400).json({
         error: 'Message is required',
@@ -237,7 +219,7 @@ app.post('/api/chat/message', async (req, res) => {
     }
 
     console.log('🤖 Processing chat message:', message);
-
+    
     let documentContext = [];
     let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys. Your role is to:
 
@@ -255,12 +237,12 @@ When responding:
 - Suggest questions they might want to explore based on their document collection
 
 You have access to permanently stored documents that users have added to build their knowledge base.`;
-
+    
     if (includeDocuments) {
       // Get ALL document content for comprehensive context
       console.log('📚 Retrieving full document content for AI context...');
       const allDocuments = await documentService.getAllDocumentContent();
-
+      
       if (allDocuments.length > 0) {
         documentContext = allDocuments.map(doc => ({
           title: doc.title,
@@ -269,10 +251,10 @@ You have access to permanently stored documents that users have added to build t
           content: doc.content, // Full content, not truncated
           addedAt: doc.addedAt
         }));
-
+        
         console.log('📚 Providing AI with', documentContext.length, 'documents');
         console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
-
+        
         // Enhanced system prompt with document context
         systemPrompt += `
 
@@ -284,7 +266,7 @@ ${index + 1}. **"${doc.title}"**
    - Added: ${new Date(doc.addedAt).toLocaleDateString()}
    - Summary: ${doc.summary}
    - Full Content: ${doc.content}
-
+   
 ---`).join('\n')}
 
 Use this content to provide accurate, detailed responses. Always cite which document(s) you're referencing.`;
@@ -321,7 +303,7 @@ Use this content to provide accurate, detailed responses. Always cite which docu
 app.get('/api/chat/context', async (req, res) => {
   try {
     const { q: query } = req.query;
-
+    
     if (!query) {
       return res.status(400).json({
         error: 'Query is required',
@@ -330,9 +312,9 @@ app.get('/api/chat/context', async (req, res) => {
     }
 
     console.log('🤖 Getting document context for:', query);
-
+    
     const context = await documentService.getRelevantDocuments(query, 10);
-
+    
     res.json({
       success: true,
       query,
@@ -357,9 +339,9 @@ app.get('/api/chat/context', async (req, res) => {
 app.get('/api/irys/balance', async (req, res) => {
   try {
     console.log('💰 Checking Irys service wallet balance...');
-
+    
     const balanceInfo = await irysService.checkBalance();
-
+    
     res.json({
       success: true,
       balance: balanceInfo
@@ -380,9 +362,9 @@ app.get('/api/irys/balance', async (req, res) => {
 app.get('/api/irys/wallet', async (req, res) => {
   try {
     console.log('🔍 Getting Irys service wallet info...');
-
+    
     const walletInfo = await irysService.getWalletInfo();
-
+    
     res.json({
       success: true,
       wallet: walletInfo
@@ -404,11 +386,11 @@ app.get('/api/irys/wallet', async (req, res) => {
 app.post('/api/irys/fund', async (req, res) => {
   try {
     const { amount = 0.01 } = req.body;
-
+    
     console.log('💸 Funding Irys service wallet with', amount, 'ETH...');
-
+    
     const fundResult = await irysService.fundWallet(amount);
-
+    
     res.json({
       success: true,
       message: 'Wallet funded successfully',
@@ -430,10 +412,10 @@ app.post('/api/irys/fund', async (req, res) => {
 app.get('/api/irys/status', async (req, res) => {
   try {
     console.log('🔍 Checking Irys service status...');
-
+    
     const walletInfo = await irysService.getWalletInfo();
     const stats = documentService.getStatistics();
-
+    
     res.json({
       success: true,
       status: 'operational',
@@ -466,19 +448,8 @@ if (process.env.NODE_ENV === 'production') {
         message: `The endpoint ${req.method} ${req.originalUrl} does not exist`
       });
     }
-
-    const indexPath = path.join(__dirname, '../dist/index.html');
-    console.log('📄 Serving index.html from:', indexPath);
-    console.log('📄 Index path resolved:', path.resolve(indexPath));
     
-    // Check if file exists before serving
-    import fs from 'fs';
-    if (fs.existsSync(path.resolve(indexPath))) {
-      res.sendFile(path.resolve(indexPath));
-    } else {
-      console.error('❌ index.html not found at:', path.resolve(indexPath));
-      res.status(500).send('Frontend build not found. Please ensure the build completed successfully.');
-    }
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 } else {
   // 404 handler for development
@@ -505,11 +476,11 @@ async function startServer() {
   try {
     console.log('🚀 Starting Document Knowledge Base API...');
     console.log('📍 Environment:', process.env.NODE_ENV || 'development');
-
+    
     // Initialize Irys service
     console.log('🔧 Initializing Irys service...');
     await irysService.initialize();
-
+    
     // Start server
     const HOST = process.env.HOST || '0.0.0.0';
     app.listen(PORT, HOST, () => {
@@ -541,4 +512,4 @@ process.on('SIGINT', () => {
 });
 
 // Start the server
-startServer();
+startServer(); 
