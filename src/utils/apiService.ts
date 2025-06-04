@@ -4,22 +4,22 @@ const API_BASE_URL = (() => {
     const currentDomain = window.location.hostname;
     const currentPort = window.location.port;
 
-    // Deployed on Replit - backend serves frontend from same server
+    // Deployed on Replit - backend serves frontend from same server with /api prefix
     if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
-      return window.location.origin;
+      return `${window.location.origin}/api`;
     }
 
     // Development environment - frontend on 5001, backend on 3001
     if (currentDomain.includes('replit.dev')) {
       // Extract base domain without port
       const baseDomain = currentDomain.split(':')[0];
-      const baseUrl = `${window.location.protocol}//${baseDomain}:3001`;
+      const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
       return baseUrl;
     }
   }
 
   // Development fallback
-  return 'http://localhost:3001';
+  return 'http://localhost:3001/api';
 })();
 
 export interface Document {
@@ -337,7 +337,9 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const healthUrl = `${API_BASE_URL}/health`;
+      // Health endpoint is at root level, not under /api
+      const baseOrigin = API_BASE_URL.replace('/api', '');
+      const healthUrl = `${baseOrigin}/health`;
       const response = await fetch(healthUrl, {
         method: 'GET'
       });
