@@ -1,15 +1,3 @@
-const getApiBaseUrl = () => {
-  if (import.meta.env.NODE_ENV === 'production') {
-    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
-  }
-
-  // In development, always use the current hostname with port 3001
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-  const protocol = hostname.includes('replit.dev') ? 'https' : 'http';
-
-  return `${protocol}://${hostname}:3001/api`;
-};
-
 // Use relative URLs for deployment (same server serves frontend and backend)
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
