@@ -8,10 +8,12 @@ class DocumentService {
 
   /**
    * Add a document by URL - complete pipeline from scraping to Irys storage
+   * Now includes user association for persistent storage
    */
-  async addDocument(url) {
+  async addDocument(url, userInfo = null) {
     try {
       console.log('📋 Starting document processing pipeline for:', url);
+      console.log('👤 User:', userInfo ? `${userInfo.email} (${userInfo.id})` : 'No user info');
       
       // Step 1: Validate URL
       if (!scraperService.isValidUrl(url)) {
@@ -28,26 +30,30 @@ class DocumentService {
         id: this.generateDocumentId(),
         ...scrapedData,
         addedAt: new Date().toISOString(),
-        status: 'processing'
+        status: 'processing',
+        userInfo: userInfo // Include user information
       };
 
-      // Step 4: Upload to Irys
-      console.log('🌐 Step 3: Uploading to Irys...');
-      const irysResult = await irysService.uploadDocument(document);
+      // Step 4: Upload to Irys with user information
+      console.log('🌐 Step 3: Uploading to Irys with user association...');
+      const irysResult = await irysService.uploadDocument(document, userInfo);
       
       // Step 5: Update document with Irys information
       document.irysId = irysResult.id;
       document.irysUrl = irysResult.url;
       document.irysReceipt = irysResult.receipt;
+      document.irysTagsUsed = irysResult.tags;
       document.status = 'stored';
       document.storedAt = irysResult.timestamp;
 
-      // Step 6: Cache the document
-      this.documents.set(document.id, document);
+      // Step 6: Cache the document (with user context)
+      const cacheKey = userInfo ? `${userInfo.id}_${document.id}` : document.id;
+      this.documents.set(cacheKey, document);
 
       console.log('✅ Document processing completed successfully!');
       console.log('🆔 Document ID:', document.id);
       console.log('🌐 Irys URL:', document.irysUrl);
+      console.log('👤 Associated with user:', userInfo ? userInfo.email : 'No user');
 
       return {
         id: document.id,
@@ -59,7 +65,8 @@ class DocumentService {
         addedAt: document.addedAt,
         contentLength: document.contentLength,
         wordCount: document.wordCount,
-        metadata: document.metadata
+        metadata: document.metadata,
+        userInfo: userInfo
       };
     } catch (error) {
       console.error('❌ Failed to add document:', error.message);
@@ -68,13 +75,67 @@ class DocumentService {
   }
 
   /**
-   * Get all documents (from cache and potentially from Irys)
+   * Load user documents from Irys on login
+   * This ensures users see their documents when they log back in
    */
-  async getAllDocuments() {
+  async loadUserDocuments(userInfo) {
+    try {
+      console.log('📚 Loading user documents from Irys...');
+      console.log('👤 User:', `${userInfo.email} (${userInfo.id})`);
+
+      // Query user documents from Irys
+      const irysDocuments = await irysService.getUserDocuments(userInfo.id, userInfo.email);
+      
+      // Clear existing cache for this user and reload
+      const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
+      userCacheKeys.forEach(key => this.documents.delete(key));
+
+      // Cache the loaded documents
+      irysDocuments.forEach(doc => {
+        const cacheKey = `${userInfo.id}_${doc.id}`;
+        this.documents.set(cacheKey, doc);
+      });
+
+      console.log(`✅ Loaded ${irysDocuments.length} documents for user ${userInfo.email}`);
+      return irysDocuments;
+
+    } catch (error) {
+      console.error('❌ Failed to load user documents:', error.message);
+      // Don't throw error - just return empty array so app continues to work
+      console.log('📝 Returning empty document list - user can add new documents');
+      return [];
+    }
+  }
+
+  /**
+   * Get all documents for a specific user (from cache and potentially from Irys)
+   */
+  async getAllDocuments(userInfo = null) {
     try {
       console.log('📚 Retrieving all documents...');
       
-      const documents = Array.from(this.documents.values()).map(doc => ({
+      let documents = [];
+      
+      if (userInfo) {
+        console.log('👤 Filtering documents for user:', userInfo.email);
+        
+        // Get documents from cache for this user
+        const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
+        documents = userCacheKeys.map(key => this.documents.get(key));
+        
+        // If no documents in cache, try to load from Irys
+        if (documents.length === 0) {
+          console.log('📥 No cached documents, loading from Irys...');
+          documents = await this.loadUserDocuments(userInfo);
+        }
+      } else {
+        // No user info - return all cached documents (fallback for backward compatibility)
+        console.log('⚠️ No user info provided - returning all cached documents');
+        documents = Array.from(this.documents.values());
+      }
+
+      // Format documents for response
+      const formattedDocuments = documents.map(doc => ({
         id: doc.id,
         title: doc.title,
         url: doc.url,
@@ -88,8 +149,8 @@ class DocumentService {
         status: doc.status
       }));
 
-      console.log('✅ Retrieved', documents.length, 'documents');
-      return documents;
+      console.log(`✅ Retrieved ${formattedDocuments.length} documents`);
+      return formattedDocuments;
     } catch (error) {
       console.error('❌ Failed to get documents:', error.message);
       throw error;
@@ -270,22 +331,41 @@ class DocumentService {
   }
 
   /**
-   * Get all document content for AI training/context
+   * Get all document content for AI context (user-specific)
    */
-  async getAllDocumentContent() {
+  async getAllDocumentContent(userInfo = null) {
     try {
-      const documents = Array.from(this.documents.values());
+      console.log('📖 Getting all document content for AI context...');
+      
+      let documents = [];
+      
+      if (userInfo) {
+        // Get user-specific documents
+        const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
+        documents = userCacheKeys.map(key => this.documents.get(key));
+        
+        // If no documents in cache, try to load from Irys
+        if (documents.length === 0) {
+          documents = await this.loadUserDocuments(userInfo);
+        }
+      } else {
+        // Fallback - get all documents
+        documents = Array.from(this.documents.values());
+      }
+
+      console.log(`📊 Providing ${documents.length} documents for AI context`);
       return documents.map(doc => ({
         id: doc.id,
         title: doc.title,
         url: doc.url,
-        content: doc.content,
         summary: doc.summary,
-        addedAt: doc.addedAt
+        content: doc.content,
+        addedAt: doc.addedAt,
+        metadata: doc.metadata
       }));
     } catch (error) {
-      console.error('❌ Failed to get all document content:', error.message);
-      throw error;
+      console.error('❌ Failed to get document content:', error.message);
+      return []; // Return empty array so AI can still function
     }
   }
 }

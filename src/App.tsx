@@ -32,15 +32,16 @@ function App() {
           setIsAuthenticated(true);
           setUserEmail(email);
           
-          // Load existing documents from backend
-          console.log('📚 Loading existing documents...');
+          // Load user-specific documents from backend/Irys
+          console.log('📚 Loading user-specific documents...');
           try {
             const { documents: existingDocs } = await apiService.getAllDocuments();
-            console.log('✅ Loaded', existingDocs.length, 'existing documents');
+            console.log(`✅ Loaded ${existingDocs.length} user documents`);
             setDocuments(existingDocs);
           } catch (docError: any) {
-            console.warn('⚠️ Could not load existing documents:', docError.message);
+            console.warn('⚠️ Could not load user documents:', docError.message);
             // Don't fail the whole app if documents can't be loaded
+            // User can still add new documents
           }
         }
         
@@ -94,9 +95,20 @@ function App() {
     };
   }, []); // Empty dependency array to prevent re-initialization
 
-  const handleAuthSuccess = (email: string) => {
+  const handleAuthSuccess = async (email: string) => {
     setIsAuthenticated(true);
     setUserEmail(email);
+    
+    // Load user documents after successful authentication
+    console.log('👤 User authenticated, loading documents...');
+    try {
+      const { documents: userDocs } = await apiService.getAllDocuments();
+      console.log(`✅ Loaded ${userDocs.length} user documents after login`);
+      setDocuments(userDocs);
+    } catch (error: any) {
+      console.warn('⚠️ Could not load user documents after login:', error.message);
+      // Continue without documents - user can add new ones
+    }
   };
 
   const handleSignOut = () => {

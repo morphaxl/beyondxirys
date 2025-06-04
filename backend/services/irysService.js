@@ -62,10 +62,10 @@ class IrysService {
   }
 
   /**
-   * Upload document to Irys with rich metadata tags
+   * Upload document to Irys with rich metadata tags including user identification
    * Following Irys docs pattern for tagging and metadata
    */
-  async uploadDocument(documentData) {
+  async uploadDocument(documentData, userInfo = null) {
     try {
       const uploader = await this.getUploader();
       
@@ -75,26 +75,54 @@ class IrysService {
         uploadedAt: new Date().toISOString(),
         serviceWallet: process.env.WALLET_ADDRESS,
         network: 'irys-devnet',
-        version: '1.0'
+        version: '1.0',
+        userInfo: userInfo // Include user information in the document
       };
 
-      // Rich metadata tags for better discoverability
+      // Rich metadata tags for better discoverability and user association
       const tags = [
         { name: "Content-Type", value: "application/json" },
         { name: "App-Name", value: "DocumentKnowledgeBase" },
         { name: "Document-Type", value: "scraped-content" },
-        { name: "Source-URL", value: documentData.url },
-        { name: "Title", value: documentData.title },
-        { name: "Domain", value: new URL(documentData.url).hostname },
+        { name: "Source-URL", value: String(documentData.url) },
+        { name: "Title", value: String(documentData.title) },
+        { name: "Domain", value: String(new URL(documentData.url).hostname) },
         { name: "Added-Date", value: new Date().toISOString() },
-        { name: "Service-Wallet", value: process.env.WALLET_ADDRESS },
+        { name: "Service-Wallet", value: String(process.env.WALLET_ADDRESS) },
         { name: "Network", value: "irys-devnet" },
         { name: "Retention", value: "60-days" }
       ];
 
+      // Add user-specific tags if user info is provided
+      if (userInfo) {
+        console.log('🔍 Debug - User info received:', JSON.stringify(userInfo, null, 2));
+        
+        // Use email as user ID if no ID is provided
+        const userId = userInfo.id || userInfo.email;
+        
+        // Only add tags with valid string values
+        if (userId) {
+          tags.push({ name: "User-ID", value: String(userId) });
+        }
+        if (userInfo.email) {
+          tags.push({ name: "User-Email", value: String(userInfo.email) });
+        }
+        if (userInfo.username || userInfo.email) {
+          tags.push({ name: "User-Username", value: String(userInfo.username || userInfo.email) });
+        }
+        
+        // Add smart wallet address if available
+        if (userInfo.smartWalletAddress) {
+          tags.push({ name: "User-Wallet", value: String(userInfo.smartWalletAddress) });
+        }
+        
+        console.log('🏷️ Final tags for upload:', tags.map(t => `${t.name}: ${t.value}`));
+      }
+
       console.log('📤 Uploading document to Irys devnet...');
       console.log('📄 Title:', documentData.title);
       console.log('🔗 URL:', documentData.url);
+      console.log('👤 User:', userInfo ? `${userInfo.email} (${userInfo.id})` : 'No user info');
       console.log('📊 Size:', JSON.stringify(document).length, 'bytes');
 
       // Upload to Irys
@@ -108,7 +136,8 @@ class IrysService {
         id: receipt.id,
         url: `https://gateway.irys.xyz/${receipt.id}`,
         timestamp: new Date(),
-        receipt
+        receipt,
+        tags // Return tags for reference
       };
     } catch (error) {
       console.error('❌ Failed to upload document to Irys:', error);
@@ -136,6 +165,132 @@ class IrysService {
     } catch (error) {
       console.error('❌ Failed to retrieve document:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Query documents by user from Irys using GraphQL
+   * This allows users to see their documents when they log in
+   */
+  async getUserDocuments(userId, userEmail) {
+    try {
+      console.log('🔍 Querying user documents from Irys...');
+      console.log('👤 User ID:', userId);
+      console.log('📧 Email:', userEmail);
+
+      // Use email as user ID if no ID is provided
+      const effectiveUserId = userId || userEmail;
+      
+      if (!effectiveUserId) {
+        console.log('⚠️ No user ID or email provided, cannot query documents');
+        return [];
+      }
+
+      // Irys GraphQL endpoint for querying transactions
+      const graphqlEndpoint = 'https://devnet.irys.xyz/graphql';
+      
+      // GraphQL query to find documents by user
+      const query = `
+        query GetUserDocuments($userId: String!) {
+          transactions(
+            tags: [
+              { name: "App-Name", values: ["DocumentKnowledgeBase"] },
+              { name: "Document-Type", values: ["scraped-content"] },
+              { name: "User-ID", values: [$userId] }
+            ]
+            first: 100
+            order: DESC
+          ) {
+            edges {
+              node {
+                id
+                tags {
+                  name
+                  value
+                }
+                timestamp
+              }
+            }
+          }
+        }
+      `;
+
+      const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables: { userId: effectiveUserId }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`GraphQL query failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.errors) {
+        throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+      }
+
+      const transactions = result.data?.transactions?.edges || [];
+      console.log(`📊 Found ${transactions.length} documents for user`);
+
+      // Retrieve full document data for each transaction
+      const documents = [];
+      for (const edge of transactions) {
+        try {
+          const txId = edge.node.id;
+          const tags = edge.node.tags;
+          
+          // Extract metadata from tags
+          const getTagValue = (tagName) => {
+            const tag = tags.find(t => t.name === tagName);
+            return tag ? tag.value : null;
+          };
+
+          // Retrieve full document content
+          const fullDocument = await this.retrieveDocument(txId);
+          
+          // Create document object with metadata
+          const document = {
+            id: fullDocument.id || txId,
+            title: getTagValue('Title') || fullDocument.title,
+            url: getTagValue('Source-URL') || fullDocument.url,
+            summary: fullDocument.summary,
+            content: fullDocument.content,
+            irysId: txId,
+            irysUrl: `https://gateway.irys.xyz/${txId}`,
+            addedAt: getTagValue('Added-Date') || edge.node.timestamp,
+            contentLength: fullDocument.contentLength,
+            wordCount: fullDocument.wordCount,
+            metadata: fullDocument.metadata || {
+              domain: getTagValue('Domain'),
+              description: fullDocument.description,
+              author: fullDocument.author,
+              publishDate: fullDocument.publishDate,
+              tags: fullDocument.tags || [],
+              language: fullDocument.language
+            },
+            userInfo: fullDocument.userInfo
+          };
+
+          documents.push(document);
+        } catch (docError) {
+          console.warn(`⚠️ Failed to retrieve document ${edge.node.id}:`, docError.message);
+          // Continue with other documents
+        }
+      }
+
+      console.log(`✅ Successfully retrieved ${documents.length} documents for user`);
+      return documents;
+
+    } catch (error) {
+      console.error('❌ Failed to query user documents:', error);
+      throw new Error(`Failed to query user documents: ${error.message}`);
     }
   }
 

@@ -63,11 +63,36 @@ export interface IrysStatus {
 class ApiService {
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
+      // Get user info from Beyond SDK if available
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...options.headers as Record<string, string>,
+      };
+
+      // Add user context if available
+      try {
+        // Import Beyond SDK dynamically to avoid circular dependencies
+        const { getBeyondSdk } = await import('./beyondSdk');
+        const beyond = await getBeyondSdk();
+        
+        if (beyond.auth.isAuthenticated()) {
+          const currentUser = beyond.auth.getCurrentUser();
+          if (currentUser) {
+            headers['x-user-info'] = JSON.stringify({
+              id: currentUser.id,
+              email: currentUser.email,
+              username: currentUser.username,
+              smartWalletAddress: currentUser.smartWalletAddress
+            });
+          }
+        }
+      } catch (userError) {
+        console.warn('Could not get user context for API request:', userError);
+        // Continue without user context
+      }
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+        headers,
         ...options,
       });
 
@@ -118,6 +143,31 @@ class ApiService {
     return {
       documents: response.documents,
       statistics: response.statistics
+    };
+  }
+
+  /**
+   * Load user documents from Irys (refresh from permanent storage)
+   */
+  async loadUserDocuments(): Promise<{ documents: Document[]; statistics: DocumentStats; message: string }> {
+    const response = await this.makeRequest<{ 
+      success: boolean; 
+      documents: Document[]; 
+      statistics: DocumentStats;
+      message: string;
+      loadedFromIrys: boolean;
+    }>('/documents/load', {
+      method: 'POST',
+    });
+
+    if (!response.success) {
+      throw new Error('Failed to load user documents from Irys');
+    }
+
+    return {
+      documents: response.documents,
+      statistics: response.statistics,
+      message: response.message
     };
   }
 

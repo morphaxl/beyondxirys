@@ -21,6 +21,7 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL,
     process.env.FRONTEND_DEV_URL,
+    'http://localhost:5001',
     `https://${process.env.REPLIT_DEV_DOMAIN}`,
     `https://${process.env.REPLIT_DEV_DOMAIN}:5001`,
     'https://beyond-gyan.replit.app',
@@ -33,7 +34,7 @@ app.use(cors({
   ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'x-user-info'],
   optionsSuccessStatus: 200 // For legacy browser support
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -46,6 +47,24 @@ app.use(express.static(frontendPath));
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// User context middleware - extract user info from headers
+app.use((req, res, next) => {
+  // Extract user info from headers (sent by frontend)
+  const userInfoHeader = req.headers['x-user-info'];
+  if (userInfoHeader) {
+    try {
+      req.userInfo = JSON.parse(userInfoHeader);
+      console.log('👤 User context:', req.userInfo.email);
+    } catch (error) {
+      console.warn('⚠️ Invalid user info header:', error.message);
+      req.userInfo = null;
+    }
+  } else {
+    req.userInfo = null;
+  }
   next();
 });
 
@@ -64,10 +83,12 @@ app.get('/health', (req, res) => {
  * Add a new document by URL
  * POST /api/documents/add
  * Body: { url: string }
+ * Headers: { x-user-info: JSON string with user details }
  */
 app.post('/api/documents/add', async (req, res) => {
   try {
     const { url } = req.body;
+    const userInfo = req.userInfo;
     
     if (!url) {
       return res.status(400).json({ 
@@ -77,8 +98,9 @@ app.post('/api/documents/add', async (req, res) => {
     }
 
     console.log('📋 Processing new document request:', url);
+    console.log('👤 User:', userInfo ? userInfo.email : 'No user context');
     
-    const document = await documentService.addDocument(url);
+    const document = await documentService.addDocument(url, userInfo);
     
     res.status(201).json({
       success: true,
@@ -95,14 +117,16 @@ app.post('/api/documents/add', async (req, res) => {
 });
 
 /**
- * Get all documents
+ * Get all documents for the authenticated user
  * GET /api/documents
+ * Headers: { x-user-info: JSON string with user details }
  */
 app.get('/api/documents', async (req, res) => {
   try {
-    console.log('📚 Fetching all documents...');
+    const userInfo = req.userInfo;
+    console.log('📚 Fetching documents for user:', userInfo ? userInfo.email : 'No user context');
     
-    const documents = await documentService.getAllDocuments();
+    const documents = await documentService.getAllDocuments(userInfo);
     const stats = documentService.getStatistics();
     
     res.json({
@@ -178,6 +202,43 @@ app.get('/api/documents/search', async (req, res) => {
 });
 
 /**
+ * Load user documents from Irys (refresh from permanent storage)
+ * POST /api/documents/load
+ * Headers: { x-user-info: JSON string with user details }
+ */
+app.post('/api/documents/load', async (req, res) => {
+  try {
+    const userInfo = req.userInfo;
+    
+    if (!userInfo) {
+      return res.status(400).json({
+        error: 'User authentication required',
+        message: 'Please provide user information to load documents'
+      });
+    }
+
+    console.log('🔄 Loading user documents from Irys for:', userInfo.email);
+    
+    const documents = await documentService.loadUserDocuments(userInfo);
+    const stats = documentService.getStatistics();
+    
+    res.json({
+      success: true,
+      message: `Loaded ${documents.length} documents from Irys`,
+      documents,
+      statistics: stats,
+      loadedFromIrys: true
+    });
+  } catch (error) {
+    console.error('❌ Error loading user documents:', error.message);
+    res.status(500).json({
+      error: 'Failed to load user documents',
+      message: error.message
+    });
+  }
+});
+
+/**
  * Delete a document
  * DELETE /api/documents/:id
  */
@@ -207,10 +268,12 @@ app.delete('/api/documents/:id', async (req, res) => {
  * Enhanced chat with document context
  * POST /api/chat/message
  * Body: { message: string, includeDocuments?: boolean }
+ * Headers: { x-user-info: JSON string with user details }
  */
 app.post('/api/chat/message', async (req, res) => {
   try {
     const { message, includeDocuments = true } = req.body;
+    const userInfo = req.userInfo;
     
     if (!message) {
       return res.status(400).json({
@@ -220,6 +283,7 @@ app.post('/api/chat/message', async (req, res) => {
     }
 
     console.log('🤖 Processing chat message:', message);
+    console.log('👤 User:', userInfo ? userInfo.email : 'No user context');
     
     let documentContext = [];
     let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys. Your role is to:
@@ -240,9 +304,9 @@ When responding:
 You have access to permanently stored documents that users have added to build their knowledge base.`;
     
     if (includeDocuments) {
-      // Get ALL document content for comprehensive context
-      console.log('📚 Retrieving full document content for AI context...');
-      const allDocuments = await documentService.getAllDocumentContent();
+      // Get user-specific document content for comprehensive context
+      console.log('📚 Retrieving user-specific document content for AI context...');
+      const allDocuments = await documentService.getAllDocumentContent(userInfo);
       
       if (allDocuments.length > 0) {
         documentContext = allDocuments.map(doc => ({
@@ -253,13 +317,13 @@ You have access to permanently stored documents that users have added to build t
           addedAt: doc.addedAt
         }));
         
-        console.log('📚 Providing AI with', documentContext.length, 'documents');
+        console.log(`📚 Providing AI with ${documentContext.length} user documents`);
         console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
         
-        // Enhanced system prompt with document context
+        // Enhanced system prompt with user-specific document context
         systemPrompt += `
 
-IMPORTANT: You currently have access to ${documentContext.length} documents in the user's knowledge base:
+IMPORTANT: You currently have access to ${documentContext.length} documents in ${userInfo ? userInfo.email + "'s" : "the user's"} personal knowledge base:
 
 ${documentContext.map((doc, index) => `
 ${index + 1}. **"${doc.title}"**
@@ -272,7 +336,8 @@ ${index + 1}. **"${doc.title}"**
 
 Use this content to provide accurate, detailed responses. Always cite which document(s) you're referencing.`;
       } else {
-        systemPrompt += '\n\nNote: The user has not added any documents to their knowledge base yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.';
+        const userContext = userInfo ? ` for ${userInfo.email}` : '';
+        systemPrompt += `\n\nNote: No documents have been added to the knowledge base${userContext} yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.`;
       }
     }
 
@@ -284,6 +349,7 @@ Use this content to provide accurate, detailed responses. Always cite which docu
       documentContext,
       systemPrompt,
       documentsUsed: documentContext.length,
+      userContext: userInfo ? userInfo.email : null,
       timestamp: new Date().toISOString()
     };
 
@@ -493,6 +559,7 @@ async function startServer() {
       console.log('');
       console.log('🎉 Document Knowledge Base is ready!');
       console.log('📋 Add documents by URL and chat with your knowledge base');
+      console.log('👤 Now with user-specific document storage!');
     });
   } catch (error) {
     console.error('💥 Failed to start server:', error);
@@ -512,4 +579,4 @@ process.on('SIGINT', () => {
 });
 
 // Start the server
-startServer(); 
+startServer();
