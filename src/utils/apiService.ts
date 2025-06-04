@@ -1,6 +1,13 @@
 const getApiBaseUrl = () => {
-  if (import.meta.env.NODE_ENV === 'production') {
-    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
+  // Check if we're in production or on a deployed Replit app
+  const isProduction = import.meta.env.NODE_ENV === 'production' || 
+                      (typeof window !== 'undefined' && 
+                       (window.location.hostname.includes('.replit.app') || 
+                        window.location.hostname.includes('beyondnetwork.xyz')));
+  
+  if (isProduction) {
+    // In production, use relative URLs since backend serves the frontend
+    return '/api';
   }
   
   // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
