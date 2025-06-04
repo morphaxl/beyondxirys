@@ -84,14 +84,14 @@ class IrysService {
         { name: "Content-Type", value: "application/json" },
         { name: "App-Name", value: "DocumentKnowledgeBase" },
         { name: "Document-Type", value: "scraped-content" },
-        { name: "Source-URL", value: documentData.url },
-        { name: "Title", value: documentData.title },
-        { name: "Domain", value: new URL(documentData.url).hostname },
+        { name: "Source-URL", value: documentData.url || "" },
+        { name: "Title", value: documentData.title || "Untitled" },
+        { name: "Domain", value: documentData.url ? new URL(documentData.url).hostname : "unknown" },
         { name: "Added-Date", value: new Date().toISOString() },
-        { name: "Service-Wallet", value: process.env.WALLET_ADDRESS },
+        { name: "Service-Wallet", value: process.env.WALLET_ADDRESS || "" },
         { name: "Network", value: "irys-devnet" },
         { name: "Retention", value: "60-days" },
-        { name: "User-ID", value: userId } // Add user ID tag for filtering
+        { name: "User-ID", value: userId || "anonymous" }
       ];
 
       console.log('📤 Uploading document to Irys devnet...');

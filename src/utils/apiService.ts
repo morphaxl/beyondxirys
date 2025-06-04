@@ -95,8 +95,15 @@ class ApiService {
    * Add a new document by URL
    */
   async addDocument(url: string): Promise<Document> {
+    if (!this.userEmail) {
+      throw new Error('User email not set');
+    }
+
     const response = await this.makeRequest<{ success: boolean; document: Document }>('/documents/add', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ url, userEmail: this.userEmail }),
     });
 
@@ -108,17 +115,21 @@ class ApiService {
   }
 
   /**
-   * Get all documents
+   * Get all documents for the user
    */
   async getAllDocuments(): Promise<{ documents: Document[]; statistics: DocumentStats }> {
-    const response = await this.makeRequest<{ 
-      success: boolean; 
-      documents: Document[]; 
+    if (!this.userEmail) {
+      throw new Error('User email not set');
+    }
+
+    const response = await this.makeRequest<{
+      success: boolean;
+      documents: Document[];
       statistics: DocumentStats;
     }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
 
     if (!response.success) {
-      throw new Error('Failed to fetch documents');
+      throw new Error('Failed to get documents');
     }
 
     return {

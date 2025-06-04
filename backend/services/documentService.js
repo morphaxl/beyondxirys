@@ -85,7 +85,10 @@ class DocumentService {
     try {
       console.log(`📚 Getting all documents for user: ${userEmail}`);
 
-      const documents = this.userDocuments.get(userEmail) || [];
+      const userDocsMap = this.userDocuments.get(userEmail) || new Map();
+      
+      // Convert Map values to array
+      const documents = Array.from(userDocsMap.values());
 
       // Ensure all documents have proper structure with id field
       const validDocuments = documents.map(doc => ({
