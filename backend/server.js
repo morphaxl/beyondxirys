@@ -39,8 +39,8 @@ const __dirname = path.dirname(__filename);
 
 // Always serve static files from the frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  // In production deployment, the build runs from project root, so dist is at project root
-  const staticPath = path.join(__dirname, '../../dist');
+  // dist is at project root, one level up from backend/
+  const staticPath = path.join(__dirname, '../dist');
   console.log('📁 Serving static files from:', staticPath);
   console.log('📁 __dirname:', __dirname);
   console.log('📁 Full static path:', path.resolve(staticPath));
@@ -467,7 +467,7 @@ if (process.env.NODE_ENV === 'production') {
       });
     }
 
-    const indexPath = path.join(__dirname, '../../dist/index.html');
+    const indexPath = path.join(__dirname, '../dist/index.html');
     console.log('📄 Serving index.html from:', indexPath);
     console.log('📄 Index path resolved:', path.resolve(indexPath));
     
