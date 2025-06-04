@@ -210,6 +210,77 @@ class IrysService {
       throw error;
     }
   }
+
+  /**
+   * Upload user document index to Irys for persistence
+   */
+  async uploadUserIndex(userIndex, userId) {
+    try {
+      const uploader = await this.getUploader();
+
+      const indexDocument = {
+        ...userIndex,
+        uploadedAt: new Date().toISOString(),
+        serviceWallet: process.env.WALLET_ADDRESS,
+        network: 'irys-devnet',
+        version: '1.0',
+        type: 'user-document-index'
+      };
+
+      const tags = [
+        { name: "Content-Type", value: "application/json" },
+        { name: "App-Name", value: "DocumentKnowledgeBase" },
+        { name: "Document-Type", value: "user-index" },
+        { name: "User-ID", value: userId },
+        { name: "Index-Version", value: "1.0" },
+        { name: "Added-Date", value: new Date().toISOString() },
+        { name: "Service-Wallet", value: process.env.WALLET_ADDRESS || "" },
+        { name: "Network", value: "irys-devnet" }
+      ];
+
+      console.log('📤 Uploading user index to Irys...');
+      console.log('👤 User:', userId);
+      console.log('📊 Documents count:', userIndex.documentIds.length);
+
+      const receipt = await uploader.upload(JSON.stringify(indexDocument), { tags });
+
+      console.log('✅ User index uploaded successfully!');
+      console.log('🆔 Index Irys ID:', receipt.id);
+
+      // Store the latest index ID for this user (in memory for now)
+      this.userIndexCache = this.userIndexCache || new Map();
+      this.userIndexCache.set(userId, receipt.id);
+
+      return {
+        id: receipt.id,
+        url: `https://gateway.irys.xyz/${receipt.id}`,
+        timestamp: new Date(),
+        receipt
+      };
+    } catch (error) {
+      console.error('❌ Failed to upload user index:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Find user document index ID (simplified approach using cache)
+   */
+  async findUserIndex(userId) {
+    try {
+      // In a production system, you'd use a proper database to store user index IDs
+      // For this demo, we'll use a simple in-memory cache
+      this.userIndexCache = this.userIndexCache || new Map();
+      
+      const indexId = this.userIndexCache.get(userId);
+      console.log(`🔍 Looking for user index for ${userId}:`, indexId ? 'Found' : 'Not found');
+      
+      return indexId || null;
+    } catch (error) {
+      console.error('❌ Failed to find user index:', error);
+      return null;
+    }
+  }
 }
 
 // Export singleton instance

@@ -115,27 +115,55 @@ class ApiService {
   }
 
   /**
-   * Get all documents for the user
+   * Get all documents for the current user
    */
-  async getAllDocuments(): Promise<{ documents: Document[]; statistics: DocumentStats }> {
+  async getAllDocuments(): Promise<{
+    documents: Document[];
+    statistics: DocumentStats;
+  }> {
     if (!this.userEmail) {
       throw new Error('User email not set');
     }
 
-    const response = await this.makeRequest<{
-      success: boolean;
-      documents: Document[];
-      statistics: DocumentStats;
-    }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
+    try {
+      const response = await this.makeRequest<{
+        success: boolean;
+        documents: Document[];
+        statistics: DocumentStats;
+      }>('/documents');
 
-    if (!response.success) {
-      throw new Error('Failed to get documents');
+      if (!response.success) {
+        throw new Error('Failed to fetch documents');
+      }
+
+      // Ensure we always return arrays and proper structure
+      const documents = Array.isArray(response.documents) ? response.documents : [];
+      const statistics = response.statistics || {
+        totalDocuments: 0,
+        totalWords: 0,
+        totalCharacters: 0,
+        domains: [],
+        averageWordsPerDocument: 0
+      };
+
+      console.log(`📚 API Service: Retrieved ${documents.length} documents for user`);
+
+      return { documents, statistics };
+    } catch (error: any) {
+      console.warn('⚠️ Failed to fetch documents from backend:', error.message);
+
+      // Return empty but valid structure on error
+      return {
+        documents: [],
+        statistics: {
+          totalDocuments: 0,
+          totalWords: 0,
+          totalCharacters: 0,
+          domains: [],
+          averageWordsPerDocument: 0
+        }
+      };
     }
-
-    return {
-      documents: response.documents,
-      statistics: response.statistics
-    };
   }
 
   /**

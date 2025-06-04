@@ -56,6 +56,15 @@ class DocumentService {
       const userDocs = this.getUserDocuments(userId);
       userDocs.set(document.id, document);
 
+      // Step 7: Update user index on Irys for persistence
+      console.log('📝 Step 4: Updating user document index...');
+      await this.updateUserIndex(userId, {
+        id: document.id,
+        irysId: document.irysId,
+        title: document.title,
+        addedAt: document.addedAt
+      });
+
       console.log('✅ Document processing completed successfully!');
       console.log('🆔 Document ID:', document.id);
       console.log('🌐 Irys URL:', document.irysUrl);
@@ -79,16 +88,41 @@ class DocumentService {
   }
 
   /**
-   * Get all documents (from cache and potentially from Irys)
+   * Get all documents (from cache and Irys with user filtering)
    */
   async getAllDocuments(userEmail) {
     try {
       console.log(`📚 Getting all documents for user: ${userEmail}`);
 
+      // Get from memory cache first
       const userDocsMap = this.userDocuments.get(userEmail) || new Map();
+      let documents = Array.from(userDocsMap.values());
 
-      // Convert Map values to array
-      const documents = Array.from(userDocsMap.values());
+      // If no documents in cache, try to retrieve from Irys user index
+      if (documents.length === 0) {
+        console.log('📥 No cached documents, checking for stored user index...');
+        try {
+          const userIndexDoc = await this.retrieveUserIndex(userEmail);
+          if (userIndexDoc && userIndexDoc.documentIds) {
+            console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
+            
+            // Retrieve each document from Irys
+            for (const docInfo of userIndexDoc.documentIds) {
+              try {
+                const doc = await irysService.retrieveDocument(docInfo.irysId);
+                // Add to cache
+                userDocsMap.set(doc.id, doc);
+                documents.push(doc);
+                console.log(`✅ Retrieved document from Irys: ${doc.title}`);
+              } catch (docError) {
+                console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
+              }
+            }
+          }
+        } catch (indexError) {
+          console.log('📝 No existing user index found, will create on first document add');
+        }
+      }
 
       // Ensure all documents have proper structure with id field
       const validDocuments = documents.map(doc => ({
@@ -339,6 +373,64 @@ class DocumentService {
     } catch (error) {
       console.error('❌ Error getting documents for user:', userId, error.message);
       return []; // Always return an array, even on error
+    }
+  }
+
+  /**
+   * Update user document index on Irys for persistence across server restarts
+   */
+  async updateUserIndex(userId, newDocumentInfo) {
+    try {
+      console.log('📝 Updating user document index for:', userId);
+
+      // Try to retrieve existing user index
+      let userIndex = { userId, documentIds: [], lastUpdated: new Date().toISOString() };
+      
+      try {
+        const existingIndex = await this.retrieveUserIndex(userId);
+        if (existingIndex) {
+          userIndex = existingIndex;
+        }
+      } catch (error) {
+        console.log('📄 Creating new user index (no existing index found)');
+      }
+
+      // Add new document to index
+      userIndex.documentIds.push(newDocumentInfo);
+      userIndex.lastUpdated = new Date().toISOString();
+
+      // Upload updated index to Irys
+      const indexResult = await irysService.uploadUserIndex(userIndex, userId);
+      
+      console.log('✅ User document index updated successfully');
+      console.log('🆔 Index Irys ID:', indexResult.id);
+
+      return indexResult;
+    } catch (error) {
+      console.error('❌ Failed to update user index:', error);
+      // Don't throw here - document is already stored, index is just for optimization
+    }
+  }
+
+  /**
+   * Retrieve user document index from Irys
+   */
+  async retrieveUserIndex(userId) {
+    try {
+      // In a production system, you'd store the user index ID in a database
+      // For now, we'll use a deterministic approach or search by tags
+      const userIndexId = await irysService.findUserIndex(userId);
+      
+      if (userIndexId) {
+        const userIndex = await irysService.retrieveDocument(userIndexId);
+        console.log('✅ Retrieved user index from Irys');
+        return userIndex;
+      }
+      
+      return null;
+    } catch (error) {
+      console.log('📄 No user index found or failed to retrieve');
+      return null;
     }
   }
 }
