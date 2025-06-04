@@ -1,15 +1,23 @@
-// Use relative URLs for deployment (same server serves frontend and backend)
+// API URL configuration
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const currentDomain = window.location.hostname;
+    const currentPort = window.location.port;
 
-    // If deployed on Replit, use same domain (backend serves frontend)
-    if (currentDomain.includes('replit.app') || currentDomain.includes('replit.dev')) {
+    // Development environment - frontend on 5001, backend on 3001
+    if (currentDomain.includes('replit.dev') && currentPort === '5001') {
+      // Remove port from domain and add 3001 for backend
+      const baseUrl = `${window.location.protocol}//${currentDomain.replace(':5001', '')}:3001`;
+      return baseUrl;
+    }
+
+    // Deployed on Replit - backend serves frontend from same server
+    if (currentDomain.includes('replit.app')) {
       return window.location.origin;
     }
   }
 
-  // Development fallback (when frontend and backend are separate)
+  // Development fallback
   return 'http://localhost:3001';
 })();
 
