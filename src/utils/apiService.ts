@@ -3,15 +3,11 @@ const getApiBaseUrl = () => {
     return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
   
-  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
-  const host = import.meta.env.VITE_BACKEND_HOST || 
-               (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
-                 ? window.location.hostname 
-                 : 'localhost');
-  const port = import.meta.env.VITE_BACKEND_PORT || '3001';
-  const protocol = host.includes('replit.dev') ? 'https' : 'http';
+  // In development, always use the current hostname with port 3001
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  const protocol = hostname.includes('replit.dev') ? 'https' : 'http';
   
-  return `${protocol}://${host}:${port}/api`;
+  return `${protocol}://${hostname}:3001/api`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -333,7 +329,7 @@ class ApiService {
     try {
       const healthUrl = import.meta.env.NODE_ENV === 'production' 
         ? '/health'
-        : API_BASE_URL.replace('/api', '/health');
+        : `${API_BASE_URL.replace('/api', '')}/health`;
       const response = await fetch(healthUrl);
       return response.ok;
     } catch {
