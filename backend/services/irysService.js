@@ -217,16 +217,35 @@ class IrysService {
    */
   async findUserIndex(userId) {
     try {
-      // Store user index IDs in a simple Map for this session
-      // In production, you'd use a database
       if (!this.userIndexes) {
         this.userIndexes = new Map();
       }
 
-      const indexId = this.userIndexes.get(userId);
-      console.log('🔍 Looking for user index ID:', indexId, 'for user:', userId);
+      // Check in-memory cache first
+      const cachedIndexId = this.userIndexes.get(userId);
+      if (cachedIndexId) {
+        console.log('✅ Found cached user index ID:', cachedIndexId);
+        return cachedIndexId;
+      }
 
-      return indexId;
+      // For now, use a deterministic approach based on userId
+      // In a real app, you'd store this in a database
+      const deterministicIndexId = `user_index_${userId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      
+      console.log('🔍 Looking for user index with deterministic ID:', deterministicIndexId);
+      
+      // Try to retrieve it to see if it exists
+      try {
+        const testRetrieval = await this.retrieveDocument(deterministicIndexId);
+        if (testRetrieval) {
+          this.userIndexes.set(userId, deterministicIndexId);
+          return deterministicIndexId;
+        }
+      } catch (retrievalError) {
+        console.log('📝 No existing user index found, will create new one');
+      }
+
+      return null;
     } catch (error) {
       console.error('❌ Error finding user index:', error);
       return null;
@@ -269,9 +288,11 @@ class IrysService {
       console.log('✅ User index uploaded successfully!');
       console.log('🆔 Index Irys ID:', receipt.id);
 
-      // Store the latest index ID for this user (in memory for now)
-      this.userIndexCache = this.userIndexCache || new Map();
-      this.userIndexCache.set(userId, receipt.id);
+      // Store the index ID for this user
+      if (!this.userIndexes) {
+        this.userIndexes = new Map();
+      }
+      this.userIndexes.set(userId, receipt.id);
 
       return {
         id: receipt.id,

@@ -31,7 +31,7 @@ function App() {
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
-          
+
           // Set user email in apiService immediately
           apiService.setUserEmail(email);
 
@@ -160,6 +160,37 @@ function App() {
 
     setSdkError('');
   };
+
+  // Load documents when user is authenticated
+  useEffect(() => {
+    const loadDocuments = async () => {
+      if (isAuthenticated && userEmail) {
+        try {
+          console.log('📚 Loading existing documents for user:', userEmail);
+
+          // Ensure user email is set in API service
+          apiService.setUserEmail(userEmail);
+
+          // Small delay to ensure backend is ready
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          const { documents: loadedDocs } = await apiService.getAllDocuments();
+          setDocuments(loadedDocs);
+          console.log('✅ Loaded', loadedDocs.length, 'existing documents');
+
+          if (loadedDocs.length === 0) {
+            console.log('📝 No documents found - user may need to add documents or they may not be persisting properly');
+          }
+        } catch (error) {
+          console.error('❌ Failed to load documents:', error);
+          // Set empty array on error to avoid undefined state
+          setDocuments([]);
+        }
+      }
+    };
+
+    loadDocuments();
+  }, [isAuthenticated, userEmail]);
 
   if (!isAuthenticated) {
     return (

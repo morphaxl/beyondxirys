@@ -94,40 +94,61 @@ class DocumentService {
     try {
       console.log(`📚 Getting all documents for user: ${userEmail}`);
 
-      // Always try to get fresh data from Irys, not just when cache is empty
       let documents = [];
-      const userDocsMap = this.userDocuments.get(userEmail) || new Map();
+      
+      // Get or create user documents map
+      if (!this.userDocuments.has(userEmail)) {
+        this.userDocuments.set(userEmail, new Map());
+      }
+      const userDocsMap = this.userDocuments.get(userEmail);
 
-      // Try to retrieve from Irys user index first
+      // Always try to retrieve from Irys user index first
       console.log('📥 Checking for stored user index on Irys...');
       try {
         const userIndexDoc = await this.retrieveUserIndex(userEmail);
         if (userIndexDoc && userIndexDoc.documentIds && userIndexDoc.documentIds.length > 0) {
           console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
           
+          // Clear existing cache and rebuild from Irys
+          userDocsMap.clear();
+          
           // Retrieve each document from Irys
           for (const docInfo of userIndexDoc.documentIds) {
             try {
               const doc = await irysService.retrieveDocument(docInfo.irysId);
-              // Add to cache
-              userDocsMap.set(doc.id, doc);
-              documents.push(doc);
-              console.log(`✅ Retrieved document from Irys: ${doc.title}`);
+              // Ensure document has proper structure
+              const processedDoc = {
+                id: doc.id || docInfo.id,
+                title: doc.title || 'Untitled Document',
+                url: doc.url || '',
+                summary: doc.summary || '',
+                irysId: docInfo.irysId,
+                irysUrl: `https://gateway.irys.xyz/${docInfo.irysId}`,
+                addedAt: doc.addedAt || docInfo.addedAt,
+                contentLength: doc.contentLength || 0,
+                wordCount: doc.wordCount || 0,
+                content: doc.content || '',
+                metadata: doc.metadata || {}
+              };
+              
+              // Add to cache and results
+              userDocsMap.set(processedDoc.id, processedDoc);
+              documents.push(processedDoc);
+              console.log(`✅ Retrieved and cached document: ${processedDoc.title}`);
             } catch (docError) {
               console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
             }
           }
           
-          // Update the user documents map with fresh data
-          this.userDocuments.set(userEmail, userDocsMap);
+          console.log(`✅ Successfully loaded ${documents.length} documents from Irys`);
         } else {
           console.log('📝 No user index found on Irys for this user');
-          // Fallback to cache if no index found
+          // Use cache if available
           documents = Array.from(userDocsMap.values());
         }
       } catch (indexError) {
-        console.log('📝 Error retrieving user index, falling back to cache:', indexError.message);
-        // Fallback to cache if Irys retrieval fails
+        console.log('📝 Error retrieving user index, using cache:', indexError.message);
+        // Use cache if Irys retrieval fails
         documents = Array.from(userDocsMap.values());
       }
 
@@ -461,19 +482,35 @@ class DocumentService {
       console.log('📝 Updating user document index for:', userId);
 
       // Try to retrieve existing user index
-      let userIndex = { userId, documentIds: [], lastUpdated: new Date().toISOString() };
+      let userIndex = { 
+        userId, 
+        documentIds: [], 
+        lastUpdated: new Date().toISOString(),
+        version: '1.0'
+      };
       
       try {
         const existingIndex = await this.retrieveUserIndex(userId);
-        if (existingIndex) {
+        if (existingIndex && existingIndex.documentIds) {
           userIndex = existingIndex;
+          console.log(`📋 Found existing index with ${userIndex.documentIds.length} documents`);
         }
       } catch (error) {
         console.log('📄 Creating new user index (no existing index found)');
       }
 
-      // Add new document to index
-      userIndex.documentIds.push(newDocumentInfo);
+      // Check if document already exists in index
+      const existingDocIndex = userIndex.documentIds.findIndex(doc => doc.id === newDocumentInfo.id);
+      if (existingDocIndex >= 0) {
+        // Update existing document info
+        userIndex.documentIds[existingDocIndex] = newDocumentInfo;
+        console.log('📝 Updated existing document in index');
+      } else {
+        // Add new document to index
+        userIndex.documentIds.push(newDocumentInfo);
+        console.log('➕ Added new document to index');
+      }
+
       userIndex.lastUpdated = new Date().toISOString();
 
       // Upload updated index to Irys
@@ -481,6 +518,7 @@ class DocumentService {
       
       console.log('✅ User document index updated successfully');
       console.log('🆔 Index Irys ID:', indexResult.id);
+      console.log('📊 Total documents in index:', userIndex.documentIds.length);
 
       return indexResult;
     } catch (error) {
