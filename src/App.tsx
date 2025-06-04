@@ -147,33 +147,14 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    const handleLogin = async (email: string) => {
-    try {
-      setLoading(true);
-      setSdkError('');
-
-      // Initialize Beyond SDK with the user's email
-      await initializeBeyondSdk(email);
-
-      // Set user email in API service for user-specific requests
-      apiService.setUserEmail(email);
-
-      setUserEmail(email);
-      setIsAuthenticated(true);
-
-      // Load documents after authentication
-      // await loadDocuments(); // loadDocuments is not defined here
-    } catch (error: any) {
-      console.error('❌ Login failed:', error);
-      setSdkError(error.message || 'Authentication failed');
-    } finally {
-      setLoading(false);
-    }
-  };
     return (
       <div className="app">
         <AuthForm 
-          onAuthSuccess={() => setIsAuthenticated(true)}
+          onAuthSuccess={(email: string) => {
+            setUserEmail(email);
+            setIsAuthenticated(true);
+            apiService.setUserEmail(email);
+          }}
         />
       </div>
     );
