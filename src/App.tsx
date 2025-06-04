@@ -146,15 +146,21 @@ function App() {
     );
   }
 
+  const handleLoginSuccess = (email: string) => {
+    setIsAuthenticated(true);
+    setUserEmail(email);
+
+    // Set user email in apiService
+    apiService.setUserEmail(email);
+
+    setSdkError('');
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="app">
         <AuthForm 
-          onAuthSuccess={(email: string) => {
-            setUserEmail(email);
-            setIsAuthenticated(true);
-            apiService.setUserEmail(email);
-          }}
+          onAuthSuccess={handleLoginSuccess}
         />
       </div>
     );
