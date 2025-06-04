@@ -39,14 +39,25 @@ const __dirname = path.dirname(__filename);
 
 // Always serve static files from the frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  const staticPath = path.join(__dirname, '../dist');
+  // In production deployment, the build runs from project root, so dist is at project root
+  const staticPath = path.join(__dirname, '../../dist');
   console.log('📁 Serving static files from:', staticPath);
   console.log('📁 __dirname:', __dirname);
   console.log('📁 Full static path:', path.resolve(staticPath));
-  app.use(express.static(staticPath, {
-    maxAge: '1d',
-    etag: false
-  }));
+  
+  // Check if the dist directory exists
+  import fs from 'fs';
+  if (fs.existsSync(path.resolve(staticPath))) {
+    app.use(express.static(staticPath, {
+      maxAge: '1d',
+      etag: false
+    }));
+    console.log('✅ Static files middleware configured successfully');
+  } else {
+    console.error('❌ Static files directory not found:', path.resolve(staticPath));
+    console.log('📋 Available files in backend directory:', fs.readdirSync(__dirname));
+    console.log('📋 Available files in parent directory:', fs.readdirSync(path.join(__dirname, '..')));
+  }
 }
 
 // Request logging middleware
@@ -456,15 +467,16 @@ if (process.env.NODE_ENV === 'production') {
       });
     }
 
-    const indexPath = path.join(__dirname, '../dist/index.html');
+    const indexPath = path.join(__dirname, '../../dist/index.html');
     console.log('📄 Serving index.html from:', indexPath);
     console.log('📄 Index path resolved:', path.resolve(indexPath));
     
     // Check if file exists before serving
-    try {
+    import fs from 'fs';
+    if (fs.existsSync(path.resolve(indexPath))) {
       res.sendFile(path.resolve(indexPath));
-    } catch (err) {
-      console.error('❌ Failed to serve index.html:', err);
+    } else {
+      console.error('❌ index.html not found at:', path.resolve(indexPath));
       res.status(500).send('Frontend build not found. Please ensure the build completed successfully.');
     }
   });
