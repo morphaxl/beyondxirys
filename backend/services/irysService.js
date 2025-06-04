@@ -18,32 +18,32 @@ class IrysService {
     try {
       console.log('🚀 Initializing Irys service wallet for devnet...');
       console.log('📍 Service wallet:', process.env.WALLET_ADDRESS);
-      
+
       // Following Irys docs: https://docs.irys.xyz/build/d/networks
       // For devnet, we need to use .withRpc() and .devnet()
       this.uploader = await Uploader(Ethereum)
         .withWallet(process.env.PRIVATE_KEY)
         .withRpc(process.env.RPC_URL)
         .devnet(); // FREE uploads with 60-day retention
-      
+
       // Wait for the uploader to be ready
       console.log('⏳ Waiting for Irys uploader to be ready...');
       await this.uploader.ready();
-      
+
       this.isInitialized = true;
-      
+
       console.log('✅ Irys service initialized successfully');
-      
+
       // Try to access address safely
       try {
         console.log('🔗 Uploader address:', this.uploader.address);
       } catch (addressError) {
         console.log('⚠️ Address not immediately available, will be set after first operation');
       }
-      
+
       console.log('💰 Token:', this.uploader.token);
       console.log('🌐 Network: Devnet (FREE uploads, 60-day retention)');
-      
+
       return this.uploader;
     } catch (error) {
       console.error('❌ Failed to initialize Irys service:', error);
@@ -68,7 +68,7 @@ class IrysService {
   async uploadDocument(documentData, userId) {
     try {
       const uploader = await this.getUploader();
-      
+
       // Prepare document with metadata
       const document = {
         ...documentData,
@@ -101,7 +101,7 @@ class IrysService {
 
       // Upload to Irys
       const receipt = await uploader.upload(JSON.stringify(document), { tags });
-      
+
       console.log('✅ Document uploaded successfully!');
       console.log('🆔 Irys ID:', receipt.id);
       console.log('🌐 Gateway URL:', `https://gateway.irys.xyz/${receipt.id}`);
@@ -125,15 +125,15 @@ class IrysService {
     try {
       const url = `https://gateway.irys.xyz/${irysId}`;
       console.log('📥 Retrieving document from Irys:', irysId);
-      
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to retrieve document: ${response.statusText}`);
       }
-      
+
       const document = await response.json();
       console.log('✅ Document retrieved successfully');
-      
+
       return document;
     } catch (error) {
       console.error('❌ Failed to retrieve document:', error);
@@ -149,9 +149,9 @@ class IrysService {
       const uploader = await this.getUploader();
       const balance = await uploader.getLoadedBalance();
       const balanceInEth = uploader.utils.fromAtomic(balance);
-      
+
       console.log('💰 Service wallet Irys balance:', balanceInEth, 'ETH (FREE DEVNET TOKENS)');
-      
+
       return {
         balance: balanceInEth,
         token: uploader.token,
@@ -170,14 +170,14 @@ class IrysService {
   async fundWallet(amount = 0.01) {
     try {
       const uploader = await this.getUploader();
-      
+
       console.log(`💸 Funding service wallet with ${amount} ETH (FREE DEVNET TOKENS)...`);
-      
+
       const fundTx = await uploader.fund(uploader.utils.toAtomic(amount));
-      
+
       console.log('✅ Wallet funded successfully!');
       console.log('💰 Amount:', uploader.utils.fromAtomic(fundTx.quantity), uploader.token);
-      
+
       return {
         amount: uploader.utils.fromAtomic(fundTx.quantity),
         token: uploader.token,
@@ -196,7 +196,7 @@ class IrysService {
     try {
       const uploader = await this.getUploader();
       const balance = await this.checkBalance();
-      
+
       return {
         address: uploader.address,
         providedAddress: process.env.WALLET_ADDRESS,
@@ -213,4 +213,4 @@ class IrysService {
 }
 
 // Export singleton instance
-export const irysService = new IrysService(); 
+export const irysService = new IrysService();

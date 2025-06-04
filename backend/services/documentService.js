@@ -22,7 +22,7 @@ class DocumentService {
   async addDocument(url, userId) {
     try {
       console.log('📋 Starting document processing pipeline for:', url);
-      
+
       // Step 1: Validate URL
       if (!scraperService.isValidUrl(url)) {
         throw new Error('Invalid URL provided');
@@ -31,7 +31,7 @@ class DocumentService {
       // Step 2: Scrape content
       console.log('🔍 Step 1: Scraping content...');
       const scrapedData = await scraperService.scrapeUrl(url);
-      
+
       // Step 3: Prepare document for storage
       console.log('📦 Step 2: Preparing document for storage...');
       const document = {
@@ -44,7 +44,7 @@ class DocumentService {
       // Step 4: Upload to Irys
       console.log('🌐 Step 3: Uploading to Irys...');
       const irysResult = await irysService.uploadDocument(document, userId);
-      
+
       // Step 5: Update document with Irys information
       document.irysId = irysResult.id;
       document.irysUrl = irysResult.url;
@@ -81,29 +81,47 @@ class DocumentService {
   /**
    * Get all documents (from cache and potentially from Irys)
    */
-  async getAllDocuments(userId) {
+  async getAllDocuments(userEmail) {
     try {
-      console.log('📚 Retrieving all documents for user:', userId);
-      
-      const userDocs = this.getUserDocuments(userId);
-      const documents = Array.from(userDocs.values()).map(doc => ({
-        id: doc.id,
-        title: doc.title,
-        url: doc.url,
-        summary: doc.summary,
-        irysId: doc.irysId,
-        irysUrl: doc.irysUrl,
-        addedAt: doc.addedAt,
-        contentLength: doc.contentLength,
-        wordCount: doc.wordCount,
-        metadata: doc.metadata,
-        status: doc.status
+      console.log(`📚 Getting all documents for user: ${userEmail}`);
+
+      const documents = this.userDocuments.get(userEmail) || [];
+
+      // Ensure all documents have proper structure with id field
+      const validDocuments = documents.map(doc => ({
+        id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: doc.title || 'Untitled Document',
+        url: doc.url || '',
+        summary: doc.summary || '',
+        irysId: doc.irysId || '',
+        irysUrl: doc.irysUrl || '',
+        addedAt: doc.addedAt || new Date().toISOString(),
+        contentLength: doc.contentLength || 0,
+        wordCount: doc.wordCount || 0,
+        metadata: {
+          domain: doc.metadata?.domain || '',
+          description: doc.metadata?.description || '',
+          author: doc.metadata?.author || '',
+          publishDate: doc.metadata?.publishDate || '',
+          tags: doc.metadata?.tags || [],
+          language: doc.metadata?.language || 'en'
+        }
       }));
 
-      console.log('✅ Retrieved', documents.length, 'documents');
-      return documents;
+      const statistics = {
+        totalDocuments: validDocuments.length,
+        totalWords: validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
+        totalCharacters: validDocuments.reduce((sum, doc) => sum + (doc.contentLength || 0), 0),
+        domains: [...new Set(validDocuments.map(doc => doc.metadata?.domain).filter(Boolean))],
+        averageWordsPerDocument: validDocuments.length > 0 
+          ? Math.round(validDocuments.reduce((sum, doc) => sum + (doc.wordCount || 0), 0) / validDocuments.length)
+          : 0
+      };
+
+      console.log(`✅ Found ${validDocuments.length} documents for user`);
+      return { documents: validDocuments, statistics };
     } catch (error) {
-      console.error('❌ Failed to get documents:', error.message);
+      console.error('❌ Error getting documents:', error);
       throw error;
     }
   }
@@ -114,7 +132,7 @@ class DocumentService {
   async getDocument(documentId, userId) {
     try {
       console.log('📄 Retrieving document:', documentId, 'for user:', userId);
-      
+
       // Check user's documents first
       const userDocs = this.getUserDocuments(userId);
       if (userDocs.has(documentId)) {
@@ -156,7 +174,7 @@ class DocumentService {
   async searchDocuments(query, userId) {
     try {
       console.log('🔍 Searching documents for:', query, 'user:', userId);
-      
+
       const searchTerm = query.toLowerCase();
       const results = [];
       const userDocs = this.getUserDocuments(userId);
@@ -188,7 +206,7 @@ class DocumentService {
   async getRelevantDocuments(query, userId, limit = 5) {
     try {
       console.log('🤖 Getting relevant documents for AI context:', query, 'user:', userId);
-      
+
       const searchResults = await this.searchDocuments(query, userId);
       const relevantDocs = searchResults.slice(0, limit).map(doc => ({
         title: doc.title,
@@ -212,7 +230,7 @@ class DocumentService {
   async removeDocument(documentId, userId) {
     try {
       console.log('🗑️ Removing document:', documentId, 'for user:', userId);
-      
+
       const userDocs = this.getUserDocuments(userId);
       if (!userDocs.has(documentId)) {
         throw new Error('Document not found');
@@ -220,7 +238,7 @@ class DocumentService {
 
       userDocs.delete(documentId);
       console.log('✅ Document removed successfully');
-      
+
       return { success: true, message: 'Document removed' };
     } catch (error) {
       console.error('❌ Failed to remove document:', error.message);
@@ -234,7 +252,7 @@ class DocumentService {
   getStatistics(userId) {
     const userDocs = this.getUserDocuments(userId);
     const docs = Array.from(userDocs.values());
-    
+
     return {
       totalDocuments: docs.length,
       totalWords: docs.reduce((sum, doc) => sum + (doc.wordCount || 0), 0),
@@ -249,7 +267,7 @@ class DocumentService {
    */
   calculateRelevanceScore(document, searchTerm) {
     let score = 0;
-    
+
     // Title match (highest weight)
     if (document.title.toLowerCase().includes(searchTerm)) {
       score += 10;
@@ -307,4 +325,4 @@ class DocumentService {
   }
 }
 
-export const documentService = new DocumentService(); 
+export const documentService = new DocumentService();
