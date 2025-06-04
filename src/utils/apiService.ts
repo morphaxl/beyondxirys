@@ -3,7 +3,8 @@ const getApiBaseUrl = () => {
   const isProduction = import.meta.env.NODE_ENV === 'production' || 
                       (typeof window !== 'undefined' && 
                        (window.location.hostname.includes('.replit.app') || 
-                        window.location.hostname.includes('beyondnetwork.xyz')));
+                        window.location.hostname.includes('beyondnetwork.xyz') ||
+                        window.location.hostname === 'beyond-gyan.replit.app'));
   
   if (isProduction) {
     // In production, use relative URLs since backend serves the frontend
