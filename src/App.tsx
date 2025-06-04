@@ -31,6 +31,9 @@ function App() {
         if (token && email) {
           setIsAuthenticated(true);
           setUserEmail(email);
+          
+          // Set user email in apiService immediately
+          apiService.setUserEmail(email);
 
           // Load existing documents from backend
           console.log('📚 Loading existing documents...');

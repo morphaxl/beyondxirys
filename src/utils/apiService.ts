@@ -142,7 +142,11 @@ class ApiService {
    * Get a specific document by ID
    */
   async getDocument(id: string): Promise<Document> {
-    const response = await this.makeRequest<{ success: boolean; document: Document }>(`/documents/${id}`);
+    if (!this.userEmail) {
+      throw new Error('User email not set');
+    }
+
+    const response = await this.makeRequest<{ success: boolean; document: Document }>(`/documents/${id}?userEmail=${encodeURIComponent(this.userEmail)}`);
 
     if (!response.success) {
       throw new Error('Document not found');
@@ -155,11 +159,15 @@ class ApiService {
    * Search documents
    */
   async searchDocuments(query: string): Promise<Document[]> {
+    if (!this.userEmail) {
+      throw new Error('User email not set');
+    }
+
     const response = await this.makeRequest<{ 
       success: boolean; 
       results: Document[]; 
       count: number;
-    }>(`/documents/search?q=${encodeURIComponent(query)}`);
+    }>(`/documents/search?q=${encodeURIComponent(query)}&userEmail=${encodeURIComponent(this.userEmail)}`);
 
     if (!response.success) {
       throw new Error('Search failed');
@@ -172,8 +180,13 @@ class ApiService {
    * Delete a document
    */
   async deleteDocument(id: string): Promise<void> {
+    if (!this.userEmail) {
+      throw new Error('User email not set');
+    }
+
     const response = await this.makeRequest<{ success: boolean }>(`/documents/${id}`, {
       method: 'DELETE',
+      body: JSON.stringify({ userEmail: this.userEmail }),
     });
 
     if (!response.success) {

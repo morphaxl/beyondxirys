@@ -100,14 +100,23 @@ app.post('/api/documents/add', async (req, res) => {
  */
 app.get('/api/documents', async (req, res) => {
   try {
-    console.log('📚 Fetching all documents...');
+    const { userEmail } = req.query;
 
-    const documents = await documentService.getAllDocuments(req.user.id);
-    const statistics = documentService.getStatistics(req.user.id);
+    if (!userEmail) {
+      return res.status(400).json({
+        error: 'User email is required',
+        message: 'Please provide userEmail parameter'
+      });
+    }
+
+    console.log('📚 Getting documents for user:', userEmail);
+
+    const result = await documentService.getAllDocuments(userEmail);
+    const statistics = documentService.getStatistics(userEmail);
 
     res.json({
       success: true,
-      documents,
+      documents: result,
       statistics: statistics
     });
   } catch (error) {
@@ -210,7 +219,7 @@ app.delete('/api/documents/:id', async (req, res) => {
  */
 app.post('/api/chat/message', async (req, res) => {
   try {
-    const { message, includeDocuments = true } = req.body;
+    const { message, includeDocuments = true, userEmail } = req.body;
 
     if (!message) {
       return res.status(400).json({
@@ -219,45 +228,46 @@ app.post('/api/chat/message', async (req, res) => {
       });
     }
 
-    console.log('🤖 Processing chat message:', message);
+    if (!userEmail) {
+      return res.status(400).json({
+        error: 'User email is required',
+        message: 'Please provide userEmail in request body'
+      });
+    }
+
+    console.log('🤖 Processing chat message:', message, 'for user:', userEmail);
 
     let documentContext = [];
-    let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys. Your role is to:
+    let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys blockchain. You help users with questions about their stored documents and general knowledge.
 
-1. **Document Knowledge Base Assistant**: Help users understand, analyze, and extract insights from their stored documents
-2. **Content Analyzer**: Provide summaries, explanations, and answer questions about document content
-3. **Research Helper**: Connect information across multiple documents and provide comprehensive responses
-4. **Information Organizer**: Help users organize and make sense of their collected knowledge
+Key capabilities:
+- Access to user's permanently stored documents
+- Ability to search and reference document content
+- Provide citations and sources when using document information
+- Help with analysis, summaries, and insights from stored content
 
-When responding:
-- Reference specific documents when relevant and cite them by title
-- Quote or paraphrase relevant content from the stored documents
-- If asked about topics covered in the documents, provide detailed answers based on the actual content
-- If asked about topics not covered in the documents, clearly state that and provide general knowledge
-- Help users discover connections between different documents
-- Suggest questions they might want to explore based on their document collection
+Always be helpful, accurate, and cite your sources when referencing user documents.`;
 
-You have access to permanently stored documents that users have added to build their knowledge base.`;
-
+    // Get all documents for context if requested
     if (includeDocuments) {
-      // Get ALL document content for comprehensive context
-      console.log('📚 Retrieving full document content for AI context...');
-      const allDocuments = await documentService.getAllDocumentContent();
+      try {
+        console.log('📚 Fetching all documents for AI context...');
+        const allDocuments = await documentService.getAllDocumentContent(userEmail);
 
-      if (allDocuments.length > 0) {
-        documentContext = allDocuments.map(doc => ({
-          title: doc.title,
-          url: doc.url,
-          summary: doc.summary,
-          content: doc.content, // Full content, not truncated
-          addedAt: doc.addedAt
-        }));
+        if (allDocuments.length > 0) {
+          documentContext = allDocuments.map(doc => ({
+            title: doc.title,
+            url: doc.url,
+            summary: doc.summary,
+            content: doc.content, // Full content, not truncated
+            addedAt: doc.addedAt
+          }));
 
-        console.log('📚 Providing AI with', documentContext.length, 'documents');
-        console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
+          console.log('📚 Providing AI with', documentContext.length, 'documents');
+          console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
 
-        // Enhanced system prompt with document context
-        systemPrompt += `
+          // Enhanced system prompt with document context
+          systemPrompt += `
 
 IMPORTANT: You currently have access to ${documentContext.length} documents in the user's knowledge base:
 
@@ -271,8 +281,11 @@ ${index + 1}. **"${doc.title}"**
 ---`).join('\n')}
 
 Use this content to provide accurate, detailed responses. Always cite which document(s) you're referencing.`;
-      } else {
-        systemPrompt += '\n\nNote: The user has not added any documents to their knowledge base yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.';
+        } else {
+          systemPrompt += '\n\nNote: The user has not added any documents to their knowledge base yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.';
+        }
+      } catch (err) {
+        console.error("Error getting all document content", err)
       }
     }
 
