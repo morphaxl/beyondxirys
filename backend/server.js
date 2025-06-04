@@ -21,14 +21,11 @@ app.use(cors({
     'https://gyan.beyondnetwork.xyz',
     /^https:\/\/.*\.replit\.dev$/,
     /^https:\/\/.*\.replit\.dev:\d+$/,
-    /^https:\/\/.*\.replit\.app$/,
-    /^https:\/\/.*\.picard\.replit\.dev$/,
-    /^https:\/\/.*\.picard\.replit\.dev:\d+$/
+    /^https:\/\/.*\.replit\.app$/
   ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-  optionsSuccessStatus: 200 // For legacy browser support
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
