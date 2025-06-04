@@ -10,11 +10,7 @@ const API_BASE_URL = (() => {
 
     // Development environment - frontend on 5001, backend on 3001
     if (currentDomain.includes('replit.dev')) {
-      // For deployment, use same origin
-      if (window.location.port === '' || window.location.port === '80' || window.location.port === '443') {
-        return `${window.location.origin}/api`;
-      }
-      // Extract base domain without port for dev
+      // Extract base domain without port
       const baseDomain = currentDomain.split(':')[0];
       const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
       return baseUrl;
