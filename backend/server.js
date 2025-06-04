@@ -41,7 +41,12 @@ const __dirname = path.dirname(__filename);
 if (process.env.NODE_ENV === 'production') {
   const staticPath = path.join(__dirname, '../dist');
   console.log('📁 Serving static files from:', staticPath);
-  app.use(express.static(staticPath));
+  console.log('📁 __dirname:', __dirname);
+  console.log('📁 Full static path:', path.resolve(staticPath));
+  app.use(express.static(staticPath, {
+    maxAge: '1d',
+    etag: false
+  }));
 }
 
 // Request logging middleware
@@ -453,7 +458,15 @@ if (process.env.NODE_ENV === 'production') {
 
     const indexPath = path.join(__dirname, '../dist/index.html');
     console.log('📄 Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
+    console.log('📄 Index path resolved:', path.resolve(indexPath));
+    
+    // Check if file exists before serving
+    try {
+      res.sendFile(path.resolve(indexPath));
+    } catch (err) {
+      console.error('❌ Failed to serve index.html:', err);
+      res.status(500).send('Frontend build not found. Please ensure the build completed successfully.');
+    }
   });
 } else {
   // 404 handler for development
