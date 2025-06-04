@@ -1,0 +1,105 @@
+Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+index-Drli7Hhh.js:303 🚀 Initializing Beyond SDK...
+index-Drli7Hhh.js:276 Beyond SDK initialized with config: iS
+index-Drli7Hhh.js:278 ✅ Beyond SDK initialized successfully
+index-Drli7Hhh.js:303 🚀 Initializing Beyond SDK...
+2index-Drli7Hhh.js:303 📚 Loading existing documents...
+inpage.js:2283 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'type')
+    at mr.<anonymous> (inpage.js:2283:37280)
+    at Generator.next (<anonymous>)
+    at ke (inpage.js:2283:36168)Understand this error
+/api/documents?userEmail=:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents?userEmail=: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async L (index-Drli7Hhh.js:303:5653)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:303 ⚠️ Could not load existing documents: Cannot read properties of undefined (reading 'id')
+L @ index-Drli7Hhh.js:303Understand this warning
+/api/documents?userEmail=:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents?userEmail=: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async L (index-Drli7Hhh.js:303:5653)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:303 ⚠️ Could not load existing documents: Cannot read properties of undefined (reading 'id')
+L @ index-Drli7Hhh.js:303Understand this warning
+/api/documents?userEmail=:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents?userEmail=: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 ❌ Failed to update service info: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+le @ index-Drli7Hhh.js:278Understand this error
+/api/documents?userEmail=:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents?userEmail=: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 ❌ Failed to update service info: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+le @ index-Drli7Hhh.js:278Understand this error
+/api/documents?userEmail=:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents?userEmail=: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+    at async _e (index-Drli7Hhh.js:278:15100)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 ❌ Failed to update service info: Error: Cannot read properties of undefined (reading 'id')
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.getAllDocuments (index-Drli7Hhh.js:278:11429)
+    at async le (index-Drli7Hhh.js:278:14569)
+    at async _e (index-Drli7Hhh.js:278:15100)
+le @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 📋 Adding document via backend API: https://portal.thirdweb.com/nebula
+/api/documents/add:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents/add: Error: Document processing failed: Document upload failed: Invalid tag format for [object Object], expected {name:string, value: string}
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.addDocument (index-Drli7Hhh.js:278:11212)
+    at async G (index-Drli7Hhh.js:278:13842)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 ❌ Failed to add document: Error: Document processing failed: Document upload failed: Invalid tag format for [object Object], expected {name:string, value: string}
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.addDocument (index-Drli7Hhh.js:278:11212)
+    at async G (index-Drli7Hhh.js:278:13842)
+G @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 📋 Adding document via backend API: https://portal.thirdweb.com/nebula
+/api/documents/add:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-Drli7Hhh.js:278 API request failed for /documents/add: Error: Document processing failed: Document upload failed: Invalid tag format for [object Object], expected {name:string, value: string}
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.addDocument (index-Drli7Hhh.js:278:11212)
+    at async G (index-Drli7Hhh.js:278:13842)
+makeRequest @ index-Drli7Hhh.js:278Understand this error
+index-Drli7Hhh.js:278 ❌ Failed to add document: Error: Document processing failed: Document upload failed: Invalid tag format for [object Object], expected {name:string, value: string}
+    at qw.makeRequest (index-Drli7Hhh.js:278:11039)
+    at async qw.addDocument (index-Drli7Hhh.js:278:11212)
+    at async G (index-Drli7Hhh.js:278:13842)
