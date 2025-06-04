@@ -1,25 +1,30 @@
 const getApiBaseUrl = () => {
-  // Check if we're in production or on a deployed Replit app
-  const isProduction = import.meta.env.NODE_ENV === 'production' || 
-                      (typeof window !== 'undefined' && 
-                       (window.location.hostname.includes('.replit.app') || 
-                        window.location.hostname.includes('beyondnetwork.xyz') ||
-                        window.location.hostname === 'beyond-gyan.replit.app'));
-  
-  if (isProduction) {
-    // In production, use relative URLs since backend serves the frontend
-    return '/api';
+  // Check if we're running on a deployed Replit app (production)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    // If we're on a .replit.app domain or custom domain, use relative URLs
+    if (hostname.includes('.replit.app') || hostname.includes('beyondnetwork.xyz')) {
+      console.log('🌐 Production detected, using relative API URLs');
+      return '/api';
+    }
+    
+    // If we're on a .replit.dev domain (development), use the same hostname with port 3001
+    if (hostname.includes('.replit.dev')) {
+      const apiUrl = `https://${hostname}:3001/api`;
+      console.log('🔧 Development detected, using API URL:', apiUrl);
+      return apiUrl;
+    }
   }
   
-  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
-  const host = import.meta.env.VITE_BACKEND_HOST || 
-               (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
-                 ? window.location.hostname 
-                 : 'localhost');
+  // Fallback for local development
+  const host = import.meta.env.VITE_BACKEND_HOST || 'localhost';
   const port = import.meta.env.VITE_BACKEND_PORT || '3001';
-  const protocol = host.includes('replit.dev') ? 'https' : 'http';
+  const protocol = 'http';
   
-  return `${protocol}://${host}:${port}/api`;
+  const apiUrl = `${protocol}://${host}:${port}/api`;
+  console.log('🏠 Local development, using API URL:', apiUrl);
+  return apiUrl;
 };
 
 const API_BASE_URL = getApiBaseUrl();
