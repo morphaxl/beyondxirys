@@ -3,13 +3,23 @@ import { irysService } from './irysService.js';
 
 class DocumentService {
   constructor() {
-    this.documents = new Map(); // In-memory cache for quick access
+    this.userDocuments = new Map(); // Map of userId -> Map of documents
+  }
+
+  /**
+   * Get user's document map, creating if it doesn't exist
+   */
+  getUserDocuments(userId) {
+    if (!this.userDocuments.has(userId)) {
+      this.userDocuments.set(userId, new Map());
+    }
+    return this.userDocuments.get(userId);
   }
 
   /**
    * Add a document by URL - complete pipeline from scraping to Irys storage
    */
-  async addDocument(url) {
+  async addDocument(url, userId) {
     try {
       console.log('📋 Starting document processing pipeline for:', url);
       
@@ -33,7 +43,7 @@ class DocumentService {
 
       // Step 4: Upload to Irys
       console.log('🌐 Step 3: Uploading to Irys...');
-      const irysResult = await irysService.uploadDocument(document);
+      const irysResult = await irysService.uploadDocument(document, userId);
       
       // Step 5: Update document with Irys information
       document.irysId = irysResult.id;
@@ -42,8 +52,9 @@ class DocumentService {
       document.status = 'stored';
       document.storedAt = irysResult.timestamp;
 
-      // Step 6: Cache the document
-      this.documents.set(document.id, document);
+      // Step 6: Cache the document for the specific user
+      const userDocs = this.getUserDocuments(userId);
+      userDocs.set(document.id, document);
 
       console.log('✅ Document processing completed successfully!');
       console.log('🆔 Document ID:', document.id);
@@ -70,11 +81,12 @@ class DocumentService {
   /**
    * Get all documents (from cache and potentially from Irys)
    */
-  async getAllDocuments() {
+  async getAllDocuments(userId) {
     try {
-      console.log('📚 Retrieving all documents...');
+      console.log('📚 Retrieving all documents for user:', userId);
       
-      const documents = Array.from(this.documents.values()).map(doc => ({
+      const userDocs = this.getUserDocuments(userId);
+      const documents = Array.from(userDocs.values()).map(doc => ({
         id: doc.id,
         title: doc.title,
         url: doc.url,
@@ -99,14 +111,15 @@ class DocumentService {
   /**
    * Get a specific document by ID
    */
-  async getDocument(documentId) {
+  async getDocument(documentId, userId) {
     try {
-      console.log('📄 Retrieving document:', documentId);
+      console.log('📄 Retrieving document:', documentId, 'for user:', userId);
       
-      // Check cache first
-      if (this.documents.has(documentId)) {
-        console.log('✅ Document found in cache');
-        return this.documents.get(documentId);
+      // Check user's documents first
+      const userDocs = this.getUserDocuments(userId);
+      if (userDocs.has(documentId)) {
+        console.log('✅ Document found in user cache');
+        return userDocs.get(documentId);
       }
 
       // If not in cache, could implement Irys retrieval here
@@ -140,14 +153,15 @@ class DocumentService {
   /**
    * Search documents by query (simple text search)
    */
-  async searchDocuments(query) {
+  async searchDocuments(query, userId) {
     try {
-      console.log('🔍 Searching documents for:', query);
+      console.log('🔍 Searching documents for:', query, 'user:', userId);
       
       const searchTerm = query.toLowerCase();
       const results = [];
+      const userDocs = this.getUserDocuments(userId);
 
-      for (const document of this.documents.values()) {
+      for (const document of userDocs.values()) {
         const score = this.calculateRelevanceScore(document, searchTerm);
         if (score > 0) {
           results.push({
@@ -171,11 +185,11 @@ class DocumentService {
   /**
    * Get documents for AI context based on a query
    */
-  async getRelevantDocuments(query, limit = 5) {
+  async getRelevantDocuments(query, userId, limit = 5) {
     try {
-      console.log('🤖 Getting relevant documents for AI context:', query);
+      console.log('🤖 Getting relevant documents for AI context:', query, 'user:', userId);
       
-      const searchResults = await this.searchDocuments(query);
+      const searchResults = await this.searchDocuments(query, userId);
       const relevantDocs = searchResults.slice(0, limit).map(doc => ({
         title: doc.title,
         url: doc.url,
@@ -195,15 +209,16 @@ class DocumentService {
   /**
    * Remove a document
    */
-  async removeDocument(documentId) {
+  async removeDocument(documentId, userId) {
     try {
-      console.log('🗑️ Removing document:', documentId);
+      console.log('🗑️ Removing document:', documentId, 'for user:', userId);
       
-      if (!this.documents.has(documentId)) {
+      const userDocs = this.getUserDocuments(userId);
+      if (!userDocs.has(documentId)) {
         throw new Error('Document not found');
       }
 
-      this.documents.delete(documentId);
+      userDocs.delete(documentId);
       console.log('✅ Document removed successfully');
       
       return { success: true, message: 'Document removed' };
@@ -216,8 +231,9 @@ class DocumentService {
   /**
    * Get document statistics
    */
-  getStatistics() {
-    const docs = Array.from(this.documents.values());
+  getStatistics(userId) {
+    const userDocs = this.getUserDocuments(userId);
+    const docs = Array.from(userDocs.values());
     
     return {
       totalDocuments: docs.length,
@@ -272,9 +288,10 @@ class DocumentService {
   /**
    * Get all document content for AI training/context
    */
-  async getAllDocumentContent() {
+  async getAllDocumentContent(userId) {
     try {
-      const documents = Array.from(this.documents.values());
+      const userDocs = this.getUserDocuments(userId);
+      const documents = Array.from(userDocs.values());
       return documents.map(doc => ({
         id: doc.id,
         title: doc.title,

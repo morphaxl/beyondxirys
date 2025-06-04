@@ -61,6 +61,12 @@ export interface IrysStatus {
 }
 
 class ApiService {
+  private userEmail: string = '';
+
+  setUserEmail(email: string) {
+    this.userEmail = email;
+  }
+
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -91,7 +97,7 @@ class ApiService {
   async addDocument(url: string): Promise<Document> {
     const response = await this.makeRequest<{ success: boolean; document: Document }>('/documents/add', {
       method: 'POST',
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, userEmail: this.userEmail }),
     });
 
     if (!response.success) {
@@ -109,7 +115,7 @@ class ApiService {
       success: boolean; 
       documents: Document[]; 
       statistics: DocumentStats;
-    }>('/documents');
+    }>(`/documents?userEmail=${encodeURIComponent(this.userEmail)}`);
 
     if (!response.success) {
       throw new Error('Failed to fetch documents');
@@ -189,7 +195,7 @@ class ApiService {
       documentsUsed: number;
     }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, includeDocuments }),
+      body: JSON.stringify({ message, includeDocuments, userEmail: this.userEmail }),
     });
 
     if (!response.success) {
