@@ -2,7 +2,6 @@
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const currentDomain = window.location.hostname;
-    const currentPort = window.location.port;
 
     // Deployed on Replit - backend serves frontend from same server with /api prefix
     if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
