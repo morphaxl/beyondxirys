@@ -1,0 +1,1136 @@
+Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+index-DmxF27wg.js:303 🚀 Initializing Beyond SDK...
+index-DmxF27wg.js:276 Beyond SDK initialized with config: oS {apiUrl: 'https://dev-api.beyondnetwork.xyz', storagePrefix: 'beyond_', debug: true}
+index-DmxF27wg.js:278 ✅ Beyond SDK initialized successfully
+index-DmxF27wg.js:303 🚀 Initializing Beyond SDK...
+2index-DmxF27wg.js:303 📚 Loading existing documents...
+inpage.js:2283 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'type')
+    at mr.<anonymous> (inpage.js:2283:37280)
+    at Generator.next (<anonymous>)
+    at ke (inpage.js:2283:36168)
+(anonymous) @ inpage.js:2283
+ke @ inpage.js:2283
+Promise.then
+Mn @ inpage.js:2283
+ke @ inpage.js:2283
+Promise.then
+Mn @ inpage.js:2283
+(anonymous) @ inpage.js:2283
+Nm @ inpage.js:2283
+boot @ inpage.js:2283
+(anonymous) @ inpage.js:2283
+setTimeout
+start @ inpage.js:2283
+(anonymous) @ inpage.js:2283
+start @ inpage.js:2283
+(anonymous) @ inpage.js:2307
+(anonymous) @ inpage.js:2307
+yD @ inpage.js:2307
+bD @ inpage.js:2307
+(anonymous) @ inpage.js:2307
+(anonymous) @ inpage.js:2307
+(anonymous) @ inpage.js:2307Understand this error
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+G @ index-DmxF27wg.js:303
+await in G
+(anonymous) @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:303 ⚠️ Could not load existing documents: Unexpected token '<', "<!doctype "... is not valid JSON
+G @ index-DmxF27wg.js:303
+await in G
+(anonymous) @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this warning
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+G @ index-DmxF27wg.js:303
+await in G
+(anonymous) @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:303 ⚠️ Could not load existing documents: Unexpected token '<', "<!doctype "... is not valid JSON
+G @ index-DmxF27wg.js:303
+await in G
+(anonymous) @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this warning
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+le @ index-DmxF27wg.js:278
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 ❌ Failed to update service info: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+le @ index-DmxF27wg.js:278
+await in le
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+le @ index-DmxF27wg.js:278
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 ❌ Failed to update service info: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+le @ index-DmxF27wg.js:278
+await in le
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+beyond-gyan.replit.app/:1 Access to XMLHttpRequest at 'https://dev-api.beyondnetwork.xyz/auth/credits/balance' from origin 'https://beyond-gyan.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+index-DmxF27wg.js:273 
+            
+            
+           GET https://dev-api.beyondnetwork.xyz/auth/credits/balance net::ERR_FAILED 403 (Forbidden)
+(anonymous) @ index-DmxF27wg.js:273
+xhr @ index-DmxF27wg.js:273
+N0 @ index-DmxF27wg.js:275
+Promise.then
+_request @ index-DmxF27wg.js:276
+request @ index-DmxF27wg.js:275
+Il.<computed> @ index-DmxF27wg.js:276
+(anonymous) @ index-DmxF27wg.js:271
+get @ index-DmxF27wg.js:276
+getBalance @ index-DmxF27wg.js:276
+g @ index-DmxF27wg.js:278
+await in g
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<jw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+beyond-gyan.replit.app/:1 Access to XMLHttpRequest at 'https://dev-api.beyondnetwork.xyz/auth/credits/balance' from origin 'https://beyond-gyan.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+index-DmxF27wg.js:273 
+            
+            
+           GET https://dev-api.beyondnetwork.xyz/auth/credits/balance net::ERR_FAILED 403 (Forbidden)
+(anonymous) @ index-DmxF27wg.js:273
+xhr @ index-DmxF27wg.js:273
+N0 @ index-DmxF27wg.js:275
+Promise.then
+_request @ index-DmxF27wg.js:276
+request @ index-DmxF27wg.js:275
+Il.<computed> @ index-DmxF27wg.js:276
+(anonymous) @ index-DmxF27wg.js:271
+get @ index-DmxF27wg.js:276
+getBalance @ index-DmxF27wg.js:276
+g @ index-DmxF27wg.js:278
+await in g
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<jw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+beyond-gyan.replit.app/:1 Access to XMLHttpRequest at 'https://dev-api.beyondnetwork.xyz/auth/signout' from origin 'https://beyond-gyan.replit.app' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+index-DmxF27wg.js:273 
+            
+            
+           POST https://dev-api.beyondnetwork.xyz/auth/signout net::ERR_FAILED
+(anonymous) @ index-DmxF27wg.js:273
+xhr @ index-DmxF27wg.js:273
+N0 @ index-DmxF27wg.js:275
+Promise.then
+_request @ index-DmxF27wg.js:276
+request @ index-DmxF27wg.js:275
+(anonymous) @ index-DmxF27wg.js:276
+(anonymous) @ index-DmxF27wg.js:271
+post @ index-DmxF27wg.js:276
+signOut @ index-DmxF27wg.js:276
+q @ index-DmxF27wg.js:303
+await in q
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+completion_list.html:12 
+            
+            
+           GET chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/utils.js net::ERR_FILE_NOT_FOUNDUnderstand this error
+completion_list.html:13 
+            
+            
+           GET chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/extensionState.js net::ERR_FILE_NOT_FOUNDUnderstand this error
+completion_list.html:14 
+            
+            
+           GET chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/heuristicsRedefinitions.js net::ERR_FILE_NOT_FOUNDUnderstand this error
+index-DmxF27wg.js:278 Authentication successful: {token: {…}, userDetails: {…}, isNewUser: undefined}
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+le @ index-DmxF27wg.js:278
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 ❌ Failed to update service info: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+le @ index-DmxF27wg.js:278
+await in le
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+qn @ index-DmxF27wg.js:194
+hy @ index-DmxF27wg.js:194
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+le @ index-DmxF27wg.js:278
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 ❌ Failed to update service info: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+le @ index-DmxF27wg.js:278
+await in le
+(anonymous) @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+ee @ index-DmxF27wg.js:76
+Uu @ index-DmxF27wg.js:181
+Pp @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+so @ index-DmxF27wg.js:194
+py @ index-DmxF27wg.js:194
+Ly @ index-DmxF27wg.js:207
+ee @ index-DmxF27wg.js:76
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+kf @ index-DmxF27wg.js:207
+Vy @ index-DmxF27wg.js:207
+Hy @ index-DmxF27wg.js:194
+(anonymous) @ index-DmxF27wg.js:194
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 API request failed for /documents: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getAllDocuments @ index-DmxF27wg.js:278
+le @ index-DmxF27wg.js:278
+Oe @ index-DmxF27wg.js:278
+await in Oe
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Lw @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 ❌ Failed to update service info: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+le @ index-DmxF27wg.js:278
+await in le
+Oe @ index-DmxF27wg.js:278
+await in Oe
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Lw @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 API request failed for /irys/wallet: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getIrysWallet @ index-DmxF27wg.js:278
+P @ index-DmxF27wg.js:278
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Lw @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 Service wallet error: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+P @ index-DmxF27wg.js:278
+await in P
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Lw @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 API request failed for /irys/wallet: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
+makeRequest @ index-DmxF27wg.js:278
+await in makeRequest
+getIrysWallet @ index-DmxF27wg.js:278
+P @ index-DmxF27wg.js:278
+Ur @ index-DmxF27wg.js:216
+ee @ index-DmxF27wg.js:76
+Jy @ index-DmxF27wg.js:216
+(anonymous) @ index-DmxF27wg.js:216
+Eh @ index-DmxF27wg.js:114
+Vf @ index-DmxF27wg.js:216
+ed @ index-DmxF27wg.js:225
+$1 @ index-DmxF27wg.js:225
+<button>
+js.jsxDEV @ index-DmxF27wg.js:34
+Lw @ index-DmxF27wg.js:278
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Lw>
+js.jsxDEV @ index-DmxF27wg.js:34
+Vw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<Vw>
+js.jsxDEV @ index-DmxF27wg.js:34
+qw @ index-DmxF27wg.js:303
+react-stack-bottom-frame @ index-DmxF27wg.js:260
+Hc @ index-DmxF27wg.js:151
+_c @ index-DmxF27wg.js:151
+df @ index-DmxF27wg.js:172
+Sf @ index-DmxF27wg.js:181
+ee @ index-DmxF27wg.js:76
+Ny @ index-DmxF27wg.js:194
+Oy @ index-DmxF27wg.js:194
+zf @ index-DmxF27wg.js:194
+Ry @ index-DmxF27wg.js:194
+Gy @ index-DmxF27wg.js:216
+i @ index-DmxF27wg.js:42
+<qw>
+js.jsxDEV @ index-DmxF27wg.js:34
+(anonymous) @ index-DmxF27wg.js:303Understand this error
+index-DmxF27wg.js:278 Service wallet error: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
