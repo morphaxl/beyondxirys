@@ -2,15 +2,28 @@ const getApiBaseUrl = () => {
   if (import.meta.env.NODE_ENV === 'production') {
     return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
-  
+
   // In development, always use the current hostname with port 3001
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   const protocol = hostname.includes('replit.dev') ? 'https' : 'http';
-  
+
   return `${protocol}://${hostname}:3001/api`;
 };
 
-const API_BASE_URL = getApiBaseUrl();
+// Use relative URLs for deployment (same server serves frontend and backend)
+const API_BASE_URL = (() => {
+  if (typeof window !== 'undefined') {
+    const currentDomain = window.location.hostname;
+
+    // If deployed on Replit, use same domain (backend serves frontend)
+    if (currentDomain.includes('replit.app') || currentDomain.includes('replit.dev')) {
+      return window.location.origin;
+    }
+  }
+
+  // Development fallback (when frontend and backend are separate)
+  return 'http://localhost:3001';
+})();
 
 export interface Document {
   id: string;
