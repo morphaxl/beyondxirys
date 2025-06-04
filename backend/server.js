@@ -23,9 +23,7 @@ app.use(cors({
     /^https:\/\/.*\.replit\.dev:\d+$/,
     /^https:\/\/.*\.replit\.app$/,
     /^https:\/\/.*\.picard\.replit\.dev$/,
-    /^https:\/\/.*\.picard\.replit\.dev:\d+$/,
-    // Allow same-origin requests in deployment
-    true
+    /^https:\/\/.*\.picard\.replit\.dev:\d+$/
   ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -460,7 +458,7 @@ async function startServer() {
     await irysService.initialize();
     
     // Start server
-    const HOST = '0.0.0.0';
+    const HOST = process.env.HOST || '0.0.0.0';
     app.listen(PORT, HOST, () => {
       console.log('✅ Server started successfully!');
       console.log(`🌐 API running on http://${HOST}:${PORT}`);

@@ -1,18 +1,9 @@
 const getApiBaseUrl = () => {
-  // Check if we're running in a deployed environment
-  if (typeof window !== 'undefined' && (
-    window.location.hostname.includes('replit.app') || 
-    window.location.hostname.includes('replit.dev')
-  )) {
-    // In deployment, use the same host for API (backend will be on same domain)
-    return `${window.location.protocol}//${window.location.hostname}/api`;
-  }
-  
   if (import.meta.env.NODE_ENV === 'production') {
     return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
   
-  // In development, use the current hostname with port 3001
+  // In development, always use the current hostname with port 3001
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   const protocol = hostname.includes('replit.dev') ? 'https' : 'http';
   
