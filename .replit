@@ -5,7 +5,7 @@ run = "npm run dev"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "npm run dev && cd backend && npm install && npm run dev"]
+run = ["sh", "-c", "npm run start:production"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
@@ -54,6 +54,27 @@ args = "npm run dev"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd backend && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Production Deployment"
+author = 27388909
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run preview &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm run production"
 
 [[ports]]
 localPort = 3001
