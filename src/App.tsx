@@ -94,11 +94,6 @@ function App() {
     };
   }, []); // Empty dependency array to prevent re-initialization
 
-  const handleAuthSuccess = (email: string) => {
-    setIsAuthenticated(true);
-    setUserEmail(email);
-  };
-
   const handleSignOut = () => {
     localStorage.removeItem('beyond_auth_token');
     localStorage.removeItem('beyond_user_email');
@@ -152,28 +147,35 @@ function App() {
 
   if (!isAuthenticated) {
     const handleLogin = async (email: string) => {
-    try {
-      setLoading(true);
-      setSdkError('');
+      try {
+        setLoading(true);
+        setSdkError('');
 
-      // Initialize Beyond SDK with the user's email
-      await initializeBeyondSdk(email);
+        // Initialize Beyond SDK with the user's email
+        await initializeBeyondSdk(email);
 
-      // Set user email in API service for user-specific requests
-      apiService.setUserEmail(email);
+        // Set user email in API service for user-specific requests
+        apiService.setUserEmail(email);
 
-      setUserEmail(email);
-      setIsAuthenticated(true);
+        setUserEmail(email);
+        setIsAuthenticated(true);
 
-      // Load documents after authentication
-      // await loadDocuments(); // loadDocuments is not defined here
-    } catch (error: any) {
-      console.error('❌ Login failed:', error);
-      setSdkError(error.message || 'Authentication failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+        // Load documents after authentication
+        try {
+          const { documents: existingDocs } = await apiService.getAllDocuments();
+          console.log('✅ Loaded', existingDocs.length, 'existing documents');
+          setDocuments(existingDocs);
+        } catch (docError: any) {
+          console.warn('⚠️ Could not load existing documents:', docError.message);
+        }
+      } catch (error: any) {
+        console.error('❌ Login failed:', error);
+        setSdkError(error.message || 'Authentication failed');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     return (
       <div className="app">
         <AuthForm 
