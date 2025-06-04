@@ -1,30 +1,17 @@
 const getApiBaseUrl = () => {
-  // Check if we're running on a deployed Replit app (production)
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    
-    // If we're on a .replit.app domain or custom domain, use relative URLs
-    if (hostname.includes('.replit.app') || hostname.includes('beyondnetwork.xyz')) {
-      console.log('🌐 Production detected, using relative API URLs');
-      return '/api';
-    }
-    
-    // If we're on a .replit.dev domain (development), use the same hostname with port 3001
-    if (hostname.includes('.replit.dev')) {
-      const apiUrl = `https://${hostname}:3001/api`;
-      console.log('🔧 Development detected, using API URL:', apiUrl);
-      return apiUrl;
-    }
+  if (import.meta.env.NODE_ENV === 'production') {
+    return import.meta.env.VITE_PROD_API_BASE_URL || '/api';
   }
   
-  // Fallback for local development
-  const host = import.meta.env.VITE_BACKEND_HOST || 'localhost';
+  // In development, use REPLIT_DEV_DOMAIN if available, otherwise fallback to localhost
+  const host = import.meta.env.VITE_BACKEND_HOST || 
+               (typeof window !== 'undefined' && window.location.hostname.includes('replit.dev') 
+                 ? window.location.hostname 
+                 : 'localhost');
   const port = import.meta.env.VITE_BACKEND_PORT || '3001';
-  const protocol = 'http';
+  const protocol = host.includes('replit.dev') ? 'https' : 'http';
   
-  const apiUrl = `${protocol}://${host}:${port}/api`;
-  console.log('🏠 Local development, using API URL:', apiUrl);
-  return apiUrl;
+  return `${protocol}://${host}:${port}/api`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
