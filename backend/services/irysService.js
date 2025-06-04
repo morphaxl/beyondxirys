@@ -8,6 +8,7 @@ class IrysService {
   constructor() {
     this.uploader = null;
     this.isInitialized = false;
+    this.userIndexes = new Map(); // Track user index IDs
   }
 
   /**
@@ -212,6 +213,27 @@ class IrysService {
   }
 
   /**
+   * Find user index by searching for documents with user-specific tags
+   */
+  async findUserIndex(userId) {
+    try {
+      // Store user index IDs in a simple Map for this session
+      // In production, you'd use a database
+      if (!this.userIndexes) {
+        this.userIndexes = new Map();
+      }
+
+      const indexId = this.userIndexes.get(userId);
+      console.log('🔍 Looking for user index ID:', indexId, 'for user:', userId);
+
+      return indexId;
+    } catch (error) {
+      console.error('❌ Error finding user index:', error);
+      return null;
+    }
+  }
+
+  /**
    * Upload user document index to Irys for persistence
    */
   async uploadUserIndex(userIndex, userId) {
@@ -260,25 +282,6 @@ class IrysService {
     } catch (error) {
       console.error('❌ Failed to upload user index:', error);
       throw error;
-    }
-  }
-
-  /**
-   * Find user document index ID (simplified approach using cache)
-   */
-  async findUserIndex(userId) {
-    try {
-      // In a production system, you'd use a proper database to store user index IDs
-      // For this demo, we'll use a simple in-memory cache
-      this.userIndexCache = this.userIndexCache || new Map();
-      
-      const indexId = this.userIndexCache.get(userId);
-      console.log(`🔍 Looking for user index for ${userId}:`, indexId ? 'Found' : 'Not found');
-      
-      return indexId || null;
-    } catch (error) {
-      console.error('❌ Failed to find user index:', error);
-      return null;
     }
   }
 }

@@ -112,12 +112,17 @@ app.get('/api/documents', async (req, res) => {
     console.log('📚 Getting documents for user:', userEmail);
 
     const result = await documentService.getAllDocuments(userEmail);
-    const statistics = documentService.getStatistics(userEmail);
 
     res.json({
       success: true,
-      documents: result,
-      statistics: statistics
+      documents: result.documents || [],
+      statistics: result.statistics || {
+        totalDocuments: 0,
+        totalWords: 0,
+        totalCharacters: 0,
+        domains: [],
+        averageWordsPerDocument: 0
+      }
     });
   } catch (error) {
     console.error('❌ Error fetching documents:', error.message);

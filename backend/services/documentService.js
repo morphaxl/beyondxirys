@@ -94,34 +94,41 @@ class DocumentService {
     try {
       console.log(`📚 Getting all documents for user: ${userEmail}`);
 
-      // Get from memory cache first
+      // Always try to get fresh data from Irys, not just when cache is empty
+      let documents = [];
       const userDocsMap = this.userDocuments.get(userEmail) || new Map();
-      let documents = Array.from(userDocsMap.values());
 
-      // If no documents in cache, try to retrieve from Irys user index
-      if (documents.length === 0) {
-        console.log('📥 No cached documents, checking for stored user index...');
-        try {
-          const userIndexDoc = await this.retrieveUserIndex(userEmail);
-          if (userIndexDoc && userIndexDoc.documentIds) {
-            console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
-            
-            // Retrieve each document from Irys
-            for (const docInfo of userIndexDoc.documentIds) {
-              try {
-                const doc = await irysService.retrieveDocument(docInfo.irysId);
-                // Add to cache
-                userDocsMap.set(doc.id, doc);
-                documents.push(doc);
-                console.log(`✅ Retrieved document from Irys: ${doc.title}`);
-              } catch (docError) {
-                console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
-              }
+      // Try to retrieve from Irys user index first
+      console.log('📥 Checking for stored user index on Irys...');
+      try {
+        const userIndexDoc = await this.retrieveUserIndex(userEmail);
+        if (userIndexDoc && userIndexDoc.documentIds && userIndexDoc.documentIds.length > 0) {
+          console.log(`🔍 Found user index with ${userIndexDoc.documentIds.length} document IDs`);
+          
+          // Retrieve each document from Irys
+          for (const docInfo of userIndexDoc.documentIds) {
+            try {
+              const doc = await irysService.retrieveDocument(docInfo.irysId);
+              // Add to cache
+              userDocsMap.set(doc.id, doc);
+              documents.push(doc);
+              console.log(`✅ Retrieved document from Irys: ${doc.title}`);
+            } catch (docError) {
+              console.warn(`⚠️ Failed to retrieve document ${docInfo.irysId}:`, docError.message);
             }
           }
-        } catch (indexError) {
-          console.log('📝 No existing user index found, will create on first document add');
+          
+          // Update the user documents map with fresh data
+          this.userDocuments.set(userEmail, userDocsMap);
+        } else {
+          console.log('📝 No user index found on Irys for this user');
+          // Fallback to cache if no index found
+          documents = Array.from(userDocsMap.values());
         }
+      } catch (indexError) {
+        console.log('📝 Error retrieving user index, falling back to cache:', indexError.message);
+        // Fallback to cache if Irys retrieval fails
+        documents = Array.from(userDocsMap.values());
       }
 
       // Ensure all documents have proper structure with id field
