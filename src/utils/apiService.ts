@@ -4,16 +4,17 @@ const API_BASE_URL = (() => {
     const currentDomain = window.location.hostname;
     const currentPort = window.location.port;
 
-    // Development environment - frontend on 5001, backend on 3001
-    if (currentDomain.includes('replit.dev') && currentPort === '5001') {
-      // Remove port from domain and add 3001 for backend
-      const baseUrl = `${window.location.protocol}//${currentDomain.replace(':5001', '')}:3001`;
-      return baseUrl;
+    // Deployed on Replit - backend serves frontend from same server
+    if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
+      return window.location.origin;
     }
 
-    // Deployed on Replit - backend serves frontend from same server
-    if (currentDomain.includes('replit.app')) {
-      return window.location.origin;
+    // Development environment - frontend on 5001, backend on 3001
+    if (currentDomain.includes('replit.dev')) {
+      // Extract base domain without port
+      const baseDomain = currentDomain.split(':')[0];
+      const baseUrl = `${window.location.protocol}//${baseDomain}:3001`;
+      return baseUrl;
     }
   }
 
@@ -336,12 +337,13 @@ class ApiService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const healthUrl = import.meta.env.NODE_ENV === 'production' 
-        ? '/health'
-        : `${API_BASE_URL.replace('/api', '')}/health`;
-      const response = await fetch(healthUrl);
+      const healthUrl = `${API_BASE_URL}/health`;
+      const response = await fetch(healthUrl, {
+        method: 'GET'
+      });
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.warn('Backend health check failed:', error);
       return false;
     }
   }
