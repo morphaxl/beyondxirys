@@ -21,7 +21,8 @@ app.use(cors({
     'https://gyan.beyondnetwork.xyz',
     /^https:\/\/.*\.replit\.dev$/,
     /^https:\/\/.*\.replit\.dev:\d+$/,
-    /^https:\/\/.*\.replit\.app$/
+    /^https:\/\/.*\.replit\.app$/,
+    /^https:\/\/.*\.replit\.co$/
   ].filter(Boolean), // Remove any undefined values
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
