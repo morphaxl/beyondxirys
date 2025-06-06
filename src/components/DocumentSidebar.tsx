@@ -21,7 +21,6 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [serviceActive, setServiceActive] = useState(false);
 
   const handleAddDocument = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,16 +62,6 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     }
   };
 
-  const checkServiceStatus = async () => {
-    try {
-      const isHealthy = await apiService.healthCheck();
-      setServiceActive(isHealthy);
-    } catch (error: any) {
-      console.error('❌ Service check failed:', error);
-      setServiceActive(false);
-    }
-  };
-
   const handleDeleteDocument = async (documentId: string) => {
     try {
       await apiService.deleteDocument(documentId);
@@ -82,20 +71,11 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     }
   };
 
-  React.useEffect(() => {
-    checkServiceStatus();
-  }, []);
-
   return (
     <div className="document-sidebar">
       <div className="sidebar-header">
         <h3>🔖 Smart Bookmarks</h3>
-        <div className="service-status">
-          <div className="service-indicator">
-            <span className={`status-dot ${serviceActive ? 'active' : 'inactive'}`}></span>
-            <span className="status-text">Service {serviceActive ? 'Active' : 'Inactive'}</span>
-          </div>
-        </div>
+        <p className="sidebar-subtitle">Save any article or webpage - I'll remember it so you don't have to!</p>
       </div>
 
       <form onSubmit={handleAddDocument} className="url-form">
@@ -111,7 +91,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
             required
           />
           <small className="url-hint">
-            Save any article or webpage - I'll remember it so you don't have to!
+            Paste any article URL to add to your knowledge base.
           </small>
         </div>
 

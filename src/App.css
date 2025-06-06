@@ -695,43 +695,14 @@ body {
   font-size: 18px;
 }
 
-/* Service Status Indicator */
-.service-status {
-  margin-bottom: 16px;
-}
-
-.service-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e1e5e9;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.status-dot.active {
-  background-color: #22c55e;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
-}
-
-.status-dot.inactive {
-  background-color: #ef4444;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-}
-
-.status-text {
+.sidebar-subtitle {
+  color: #666;
   font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  line-height: 1.4;
+  margin: 0 0 20px 0;
 }
+
+
 
 /* Bookmark Cards in Chat */
 .bookmark-cards {
@@ -1054,8 +1025,6 @@ body {
   color: #333;
   margin-bottom: 16px;
   font-size: 16px;
-  border-bottom: 1px solid #e1e5e9;
-  padding-bottom: 8px;
 }
 
 .no-documents {
