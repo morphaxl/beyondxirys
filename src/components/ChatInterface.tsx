@@ -11,7 +11,8 @@ interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
-  timestamp: Date;
+  timestamp: string;
+  documentContext?: any[];
 }
 
 interface ChatInterfaceProps {
@@ -61,7 +62,7 @@ I'm your intelligent bookmark companion that remembers everything you save, so y
 
 Try asking: "What bookmarks do I have about technology?" or "Summarize that article I saved about productivity" or "Find bookmarks related to AI"`,
       role: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     };
     setMessages([welcomeMessage]);
   }, [userEmail, documents.length]);
@@ -87,7 +88,7 @@ Try asking: "What bookmarks do I have about technology?" or "Summarize that arti
       id: generateMessageId(),
       content: inputValue.trim(),
       role: 'user',
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     };
 
     const updatedMessages = [...messages, userMessage];
@@ -167,7 +168,8 @@ Try asking: "What bookmarks do I have about technology?" or "Summarize that arti
         id: generateMessageId(),
         content: aiResponseContent,
         role: 'assistant',
-        timestamp: new Date()
+        timestamp: new Date().toISOString(),
+        documentContext: contextData.documentContext,
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -181,7 +183,7 @@ Try asking: "What bookmarks do I have about technology?" or "Summarize that arti
         id: generateMessageId(),
         content: `Sorry, I encountered an error: ${err.message || 'Unknown error'}. Please ensure you're authenticated and try again.`,
         role: 'assistant',
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -208,7 +210,7 @@ Try asking: "What bookmarks do I have about technology?" or "Summarize that arti
 
 Try asking me: "What's this bookmark about?" or "Find my bookmarks about this topic" or "Summarize this for me"`,
       role: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     };
     setMessages(prev => [...prev, confirmationMessage]);
   };
@@ -233,9 +235,7 @@ Try asking me: "What's this bookmark about?" or "Find my bookmarks about this to
         onDocumentDeleted={onDocumentDeleted}
         documentsLoading={documentsLoading}
         documentsError={documentsError}
-        onRetryLoadDocuments={onRetryLoadDocuments}
         isOpen={isSidebarOpen}
-        onClose={() => setSidebarOpen(false)}
         onSignOut={handleSignOut}
       />
       <div className="main-content">
