@@ -59,6 +59,10 @@
   cursor: pointer;
 }
 
+.auth-button:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
 .auth-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -68,6 +72,10 @@
   background-color: hsl(var(--secondary));
   color: hsl(var(--secondary-foreground));
   margin-top: 1rem;
+}
+
+.auth-button.secondary:hover {
+  background-color: hsl(var(--secondary) / 0.9);
 }
 
 .auth-error {

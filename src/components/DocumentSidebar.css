@@ -46,7 +46,7 @@
 }
 
 .sidebar-input::placeholder {
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
 }
 
 .sidebar-input:focus {
@@ -72,6 +72,10 @@
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   cursor: pointer;
+}
+
+.sidebar-button:hover {
+  background-color: hsl(var(--primary) / 0.9);
 }
 
 .sidebar-button:disabled {
@@ -164,7 +168,7 @@
 
 .sidebar-footer .theme-toggle-btn {
   background: none;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.5rem;
   cursor: pointer;
@@ -216,10 +220,31 @@
   box-shadow: 0 0 0 1px hsl(var(--ring));
 }
 
-.sign-out-button {
+.theme-toggle:hover {
+  background-color: hsl(var(--accent));
+}
+
+.sign-out-btn {
   background: none;
   border: none;
   color: hsl(var(--muted-foreground));
   cursor: pointer;
   margin-left: auto;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.sign-out-btn:hover {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.theme-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+.theme-toggle-btn:hover {
+  background-color: hsl(var(--accent));
 } 

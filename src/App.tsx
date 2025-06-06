@@ -189,9 +189,8 @@ function App() {
       <div className="app-container">
         {loading ? (
           <div className="loading-screen">
-            <div className="spinner"></div>
-            <p>Loading Beyond Gyan...</p>
-            <small>Initializing SDK...</small>
+            <div className="loading-spinner"></div>
+            <p className="loading-text">Loading Beyond Gyan...</p>
           </div>
         ) : sdkError ? (
           <div className="error-screen">
