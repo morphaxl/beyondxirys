@@ -146,13 +146,16 @@ app.get('/api/documents', async (req, res) => {
 /**
  * Get a specific document by ID
  * GET /api/documents/:id
+ * Headers: { x-user-info: JSON string with user details }
  */
 app.get('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const userInfo = req.userInfo;
     console.log('📄 Fetching document:', id);
+    console.log('👤 User context:', userInfo ? userInfo.email : 'No user context');
     
-    const document = await documentService.getDocument(id);
+    const document = await documentService.getDocument(id, userInfo);
     
     res.json({
       success: true,
@@ -241,13 +244,16 @@ app.post('/api/documents/load', async (req, res) => {
 /**
  * Delete a document
  * DELETE /api/documents/:id
+ * Headers: { x-user-info: JSON string with user details }
  */
 app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const userInfo = req.userInfo;
     console.log('🗑️ Deleting document:', id);
+    console.log('👤 User context:', userInfo ? userInfo.email : 'No user context');
     
-    const result = await documentService.removeDocument(id);
+    const result = await documentService.removeDocument(id, userInfo);
     
     res.json({
       success: true,

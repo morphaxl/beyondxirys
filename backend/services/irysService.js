@@ -363,6 +363,171 @@ class IrysService {
       throw error;
     }
   }
+
+  /**
+   * Upload deletion record to Irys to track deleted documents
+   * This ensures deletions persist across server restarts
+   */
+  async uploadDeletionRecord(deletionData, userInfo) {
+    try {
+      const uploader = await this.getUploader();
+      
+      // Prepare deletion record with metadata
+      const deletionRecord = {
+        ...deletionData,
+        uploadedAt: new Date().toISOString(),
+        serviceWallet: process.env.WALLET_ADDRESS,
+        network: 'irys-devnet',
+        version: '1.0'
+      };
+
+      // Use email as user ID if no ID is provided
+      const userId = userInfo.id || userInfo.email;
+
+      // Rich metadata tags for deletion records
+      const tags = [
+        { name: "Content-Type", value: "application/json" },
+        { name: "App-Name", value: "DocumentKnowledgeBase" },
+        { name: "Record-Type", value: "deletion-record" },
+        { name: "Deleted-Document-ID", value: String(deletionData.deletedDocumentId) },
+        { name: "Deleted-At", value: deletionData.deletedAt },
+        { name: "User-ID", value: String(userId) },
+        { name: "User-Email", value: String(userInfo.email) },
+        { name: "Service-Wallet", value: String(process.env.WALLET_ADDRESS) },
+        { name: "Network", value: "irys-devnet" }
+      ];
+
+      console.log('📤 Uploading deletion record to Irys...');
+      console.log('🗑️ Deleted Document ID:', deletionData.deletedDocumentId);
+      console.log('👤 User:', userInfo.email);
+
+      // Upload to Irys
+      const receipt = await uploader.upload(JSON.stringify(deletionRecord), { tags });
+      
+      console.log('✅ Deletion record uploaded successfully!');
+      console.log('🆔 Irys ID:', receipt.id);
+
+      return {
+        id: receipt.id,
+        url: `https://gateway.irys.xyz/${receipt.id}`,
+        timestamp: new Date(),
+        receipt,
+        tags
+      };
+    } catch (error) {
+      console.error('❌ Failed to upload deletion record to Irys:', error);
+      throw new Error(`Deletion record upload failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Query deletion records by user from Irys
+   * This loads which documents the user has deleted
+   */
+  async getUserDeletionRecords(userId, userEmail) {
+    try {
+      console.log('🔍 Querying deletion records from Irys...');
+      console.log('👤 User ID:', userId);
+      console.log('📧 Email:', userEmail);
+
+      // Use email as user ID if no ID is provided
+      const effectiveUserId = userId || userEmail;
+      
+      if (!effectiveUserId) {
+        console.log('⚠️ No user ID or email provided, cannot query deletion records');
+        return [];
+      }
+
+      // Irys GraphQL endpoint for querying transactions
+      const graphqlEndpoint = 'https://devnet.irys.xyz/graphql';
+      
+      // GraphQL query to find deletion records by user
+      const query = `
+        query GetUserDeletionRecords($userId: String!) {
+          transactions(
+            tags: [
+              { name: "App-Name", values: ["DocumentKnowledgeBase"] },
+              { name: "Record-Type", values: ["deletion-record"] },
+              { name: "User-ID", values: [$userId] }
+            ]
+            first: 100
+            order: DESC
+          ) {
+            edges {
+              node {
+                id
+                tags {
+                  name
+                  value
+                }
+                timestamp
+              }
+            }
+          }
+        }
+      `;
+
+      const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables: { userId: effectiveUserId }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`GraphQL query failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.errors) {
+        throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+      }
+
+      const transactions = result.data?.transactions?.edges || [];
+      console.log(`📊 Found ${transactions.length} deletion records for user`);
+
+      // Extract deletion records
+      const deletionRecords = [];
+      for (const edge of transactions) {
+        try {
+          const tags = edge.node.tags;
+          
+          // Extract deleted document ID from tags
+          const getTagValue = (tagName) => {
+            const tag = tags.find(t => t.name === tagName);
+            return tag ? tag.value : null;
+          };
+
+          const deletedDocumentId = getTagValue('Deleted-Document-ID');
+          const deletedAt = getTagValue('Deleted-At');
+          
+          if (deletedDocumentId) {
+            deletionRecords.push({
+              deletedDocumentId,
+              deletedAt,
+              irysId: edge.node.id,
+              timestamp: edge.node.timestamp
+            });
+          }
+        } catch (recordError) {
+          console.warn(`⚠️ Failed to process deletion record ${edge.node.id}:`, recordError.message);
+          // Continue with other records
+        }
+      }
+
+      console.log(`✅ Successfully retrieved ${deletionRecords.length} deletion records for user`);
+      return deletionRecords;
+
+    } catch (error) {
+      console.error('❌ Failed to query deletion records:', error);
+      throw new Error(`Failed to query deletion records: ${error.message}`);
+    }
+  }
 }
 
 // Export singleton instance

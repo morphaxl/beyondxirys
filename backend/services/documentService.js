@@ -77,6 +77,7 @@ class DocumentService {
   /**
    * Load user documents from Irys on login
    * This ensures users see their documents when they log back in
+   * Now includes filtering out deleted documents
    */
   async loadUserDocuments(userInfo) {
     try {
@@ -86,18 +87,28 @@ class DocumentService {
       // Query user documents from Irys
       const irysDocuments = await irysService.getUserDocuments(userInfo.id, userInfo.email);
       
+      // Load deletion records to filter out deleted documents
+      const deletedDocumentIds = await this.loadUserDeletionRecords(userInfo);
+      
+      // Filter out deleted documents
+      const activeDocuments = irysDocuments.filter(doc => !deletedDocumentIds.includes(doc.id));
+      
+      console.log(`📊 Total documents from Irys: ${irysDocuments.length}`);
+      console.log(`🗑️ Deleted documents to filter out: ${deletedDocumentIds.length}`);
+      console.log(`✅ Active documents after filtering: ${activeDocuments.length}`);
+      
       // Clear existing cache for this user and reload
       const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
       userCacheKeys.forEach(key => this.documents.delete(key));
 
-      // Cache the loaded documents
-      irysDocuments.forEach(doc => {
+      // Cache the loaded active documents
+      activeDocuments.forEach(doc => {
         const cacheKey = `${userInfo.id}_${doc.id}`;
         this.documents.set(cacheKey, doc);
       });
 
-      console.log(`✅ Loaded ${irysDocuments.length} documents for user ${userInfo.email}`);
-      return irysDocuments;
+      console.log(`✅ Loaded ${activeDocuments.length} active documents for user ${userInfo.email}`);
+      return activeDocuments;
 
     } catch (error) {
       console.error('❌ Failed to load user documents:', error.message);
@@ -109,6 +120,7 @@ class DocumentService {
 
   /**
    * Get all documents for a specific user (from cache and potentially from Irys)
+   * Now includes filtering out deleted documents
    */
   async getAllDocuments(userInfo = null) {
     try {
@@ -123,10 +135,33 @@ class DocumentService {
         const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
         documents = userCacheKeys.map(key => this.documents.get(key));
         
-        // If no documents in cache, try to load from Irys
+        // If no documents in cache, try to load from Irys (this will automatically filter deleted ones)
         if (documents.length === 0) {
           console.log('📥 No cached documents, loading from Irys...');
           documents = await this.loadUserDocuments(userInfo);
+        } else {
+          // We have cached documents, but we should still filter out any that have been deleted
+          console.log('🔍 Checking for deleted documents to filter from cache...');
+          const deletedDocumentIds = await this.loadUserDeletionRecords(userInfo);
+          
+          if (deletedDocumentIds.length > 0) {
+            const beforeCount = documents.length;
+            documents = documents.filter(doc => !deletedDocumentIds.includes(doc.id));
+            const afterCount = documents.length;
+            
+            if (beforeCount !== afterCount) {
+              console.log(`🗑️ Filtered out ${beforeCount - afterCount} deleted documents from cache`);
+              
+              // Update cache to remove deleted documents
+              deletedDocumentIds.forEach(deletedId => {
+                const cacheKey = `${userInfo.id}_${deletedId}`;
+                if (this.documents.has(cacheKey)) {
+                  this.documents.delete(cacheKey);
+                  console.log('🧹 Cleaned up cached deleted document:', cacheKey);
+                }
+              });
+            }
+          }
         }
       } else {
         // No user info - return all cached documents (fallback for backward compatibility)
@@ -149,7 +184,7 @@ class DocumentService {
         status: doc.status
       }));
 
-      console.log(`✅ Retrieved ${formattedDocuments.length} documents`);
+      console.log(`✅ Retrieved ${formattedDocuments.length} active documents`);
       return formattedDocuments;
     } catch (error) {
       console.error('❌ Failed to get documents:', error.message);
@@ -160,17 +195,53 @@ class DocumentService {
   /**
    * Get a specific document by ID
    */
-  async getDocument(documentId) {
+  async getDocument(documentId, userInfo = null) {
     try {
       console.log('📄 Retrieving document:', documentId);
+      console.log('👤 User context:', userInfo ? userInfo.email : 'No user context');
       
-      // Check cache first
-      if (this.documents.has(documentId)) {
+      // Try to find the document with user-specific cache key first
+      let cacheKey = documentId;
+      let found = false;
+      
+      if (userInfo) {
+        // Try user-specific cache key first
+        const userCacheKey = `${userInfo.id}_${documentId}`;
+        if (this.documents.has(userCacheKey)) {
+          cacheKey = userCacheKey;
+          found = true;
+          console.log('📍 Found document with user-specific key:', userCacheKey);
+        }
+      }
+      
+      // Fallback: try direct document ID (for backward compatibility)
+      if (!found && this.documents.has(documentId)) {
+        cacheKey = documentId;
+        found = true;
+        console.log('📍 Found document with direct key:', documentId);
+      }
+      
+      // If still not found, search through all user documents
+      if (!found && userInfo) {
+        const userKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
+        for (const key of userKeys) {
+          const doc = this.documents.get(key);
+          if (doc && doc.id === documentId) {
+            cacheKey = key;
+            found = true;
+            console.log('📍 Found document by searching user documents:', key);
+            break;
+          }
+        }
+      }
+      
+      if (found) {
         console.log('✅ Document found in cache');
-        return this.documents.get(documentId);
+        return this.documents.get(cacheKey);
       }
 
       // If not in cache, could implement Irys retrieval here
+      console.log('❌ Document not found. Available keys:', Array.from(this.documents.keys()));
       throw new Error('Document not found');
     } catch (error) {
       console.error('❌ Failed to get document:', error.message);
@@ -181,9 +252,9 @@ class DocumentService {
   /**
    * Get document content for AI context
    */
-  async getDocumentContent(documentId) {
+  async getDocumentContent(documentId, userInfo = null) {
     try {
-      const document = await this.getDocument(documentId);
+      const document = await this.getDocument(documentId, userInfo);
       return {
         id: document.id,
         title: document.title,
@@ -254,20 +325,65 @@ class DocumentService {
   }
 
   /**
-   * Remove a document
+   * Remove a document (uploads deletion record to Irys for persistence)
    */
-  async removeDocument(documentId) {
+  async removeDocument(documentId, userInfo = null) {
     try {
       console.log('🗑️ Removing document:', documentId);
+      console.log('👤 User context:', userInfo ? userInfo.email : 'No user context');
       
-      if (!this.documents.has(documentId)) {
+      if (!userInfo) {
+        throw new Error('User authentication required for document deletion');
+      }
+      
+      // Try to find the document with user-specific cache key first
+      let cacheKey = documentId;
+      let found = false;
+      
+      // Try user-specific cache key first
+      const userCacheKey = `${userInfo.id}_${documentId}`;
+      if (this.documents.has(userCacheKey)) {
+        cacheKey = userCacheKey;
+        found = true;
+        console.log('📍 Found document with user-specific key:', userCacheKey);
+      }
+      
+      // Fallback: try direct document ID (for backward compatibility)
+      if (!found && this.documents.has(documentId)) {
+        cacheKey = documentId;
+        found = true;
+        console.log('📍 Found document with direct key:', documentId);
+      }
+      
+      // If still not found, search through all user documents
+      if (!found) {
+        const userKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
+        for (const key of userKeys) {
+          const doc = this.documents.get(key);
+          if (doc && doc.id === documentId) {
+            cacheKey = key;
+            found = true;
+            console.log('📍 Found document by searching user documents:', key);
+            break;
+          }
+        }
+      }
+      
+      if (!found) {
+        console.log('❌ Document not found. Available keys:', Array.from(this.documents.keys()));
         throw new Error('Document not found');
       }
 
-      this.documents.delete(documentId);
-      console.log('✅ Document removed successfully');
+      // Step 1: Upload deletion record to Irys for permanent tracking
+      console.log('📝 Uploading deletion record to Irys...');
+      await this.uploadDeletionRecord(documentId, userInfo);
       
-      return { success: true, message: 'Document removed' };
+      // Step 2: Remove from local cache
+      this.documents.delete(cacheKey);
+      console.log('✅ Document removed from cache:', cacheKey);
+      
+      console.log('🎉 Document deletion completed successfully (persisted to Irys)');
+      return { success: true, message: 'Bookmark deleted successfully' };
     } catch (error) {
       console.error('❌ Failed to remove document:', error.message);
       throw error;
@@ -332,6 +448,7 @@ class DocumentService {
 
   /**
    * Get all document content for AI context (user-specific)
+   * Now includes filtering out deleted documents
    */
   async getAllDocumentContent(userInfo = null) {
     try {
@@ -344,16 +461,30 @@ class DocumentService {
         const userCacheKeys = Array.from(this.documents.keys()).filter(key => key.startsWith(`${userInfo.id}_`));
         documents = userCacheKeys.map(key => this.documents.get(key));
         
-        // If no documents in cache, try to load from Irys
+        // If no documents in cache, try to load from Irys (this will automatically filter deleted ones)
         if (documents.length === 0) {
           documents = await this.loadUserDocuments(userInfo);
+        } else {
+          // Filter out deleted documents from cached content
+          console.log('🔍 Filtering deleted documents from AI context...');
+          const deletedDocumentIds = await this.loadUserDeletionRecords(userInfo);
+          
+          if (deletedDocumentIds.length > 0) {
+            const beforeCount = documents.length;
+            documents = documents.filter(doc => !deletedDocumentIds.includes(doc.id));
+            const afterCount = documents.length;
+            
+            if (beforeCount !== afterCount) {
+              console.log(`🗑️ Filtered out ${beforeCount - afterCount} deleted documents from AI context`);
+            }
+          }
         }
       } else {
         // Fallback - get all documents
         documents = Array.from(this.documents.values());
       }
 
-      console.log(`📊 Providing ${documents.length} documents for AI context`);
+      console.log(`📊 Providing ${documents.length} active documents for AI context`);
       return documents.map(doc => ({
         id: doc.id,
         title: doc.title,
@@ -366,6 +497,56 @@ class DocumentService {
     } catch (error) {
       console.error('❌ Failed to get document content:', error.message);
       return []; // Return empty array so AI can still function
+    }
+  }
+
+  /**
+   * Upload a deletion record to Irys to track deleted documents
+   * This ensures deletions persist across server restarts
+   */
+  async uploadDeletionRecord(documentId, userInfo) {
+    try {
+      console.log('📝 Creating deletion record for document:', documentId);
+      
+      const deletionRecord = {
+        type: 'DOCUMENT_DELETION',
+        deletedDocumentId: documentId,
+        deletedAt: new Date().toISOString(),
+        deletedBy: {
+          userId: userInfo.id,
+          email: userInfo.email
+        },
+        version: '1.0'
+      };
+
+      // Upload deletion record to Irys with specific tags
+      const irysResult = await irysService.uploadDeletionRecord(deletionRecord, userInfo);
+      
+      console.log('✅ Deletion record uploaded to Irys:', irysResult.id);
+      return irysResult;
+    } catch (error) {
+      console.error('❌ Failed to upload deletion record:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Load deletion records for a user from Irys
+   */
+  async loadUserDeletionRecords(userInfo) {
+    try {
+      console.log('🗑️ Loading deletion records for user:', userInfo.email);
+      
+      const deletionRecords = await irysService.getUserDeletionRecords(userInfo.id, userInfo.email);
+      
+      // Extract deleted document IDs
+      const deletedDocumentIds = deletionRecords.map(record => record.deletedDocumentId);
+      
+      console.log(`📊 Found ${deletedDocumentIds.length} deleted documents for user`);
+      return deletedDocumentIds;
+    } catch (error) {
+      console.error('❌ Failed to load deletion records:', error.message);
+      return []; // Return empty array so app continues to work
     }
   }
 }
