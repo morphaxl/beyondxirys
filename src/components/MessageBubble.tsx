@@ -23,7 +23,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       <div className="message-bubble">
         {isAssistant && message.documentContext && message.documentContext.length > 0 && (
           <div className="document-context">
-            <h5>Retrieved from your bookmarks:</h5>
             <ul>
               {message.documentContext.map((doc, index) => (
                 <li key={index}>
