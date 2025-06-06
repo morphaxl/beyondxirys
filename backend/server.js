@@ -361,24 +361,11 @@ ${index + 1}. **"${doc.title}"**
    - Summary: ${doc.summary}
    - Full Content: ${doc.content}
    
----`).join('\n')}
-
-RESPONSE FORMAT FOR BOOKMARK QUERIES:
-When users ask to "find", "looking for", or want a specific bookmark, respond like this:
-
-Found it! Here's your bookmark about [topic]:
-
-**[Exact Bookmark Title]**
-Summary: [Brief summary]
-Link: ${documentContext.length > 0 ? documentContext[0].url : 'https://example.com'}
----
-
-[Optional brief comment about the bookmark]
-
-IMPORTANT: Always format bookmark responses exactly like the example above, using the exact title, summary, and URL from the bookmark data.`;
+---`).join('\\n')}
+`;
         } else {
           const userContext = userInfo ? ` for ${userInfo.email}` : '';
-          systemPrompt += `\n\nNote: No bookmarks have been saved${userContext} yet. Encourage them to save their first bookmark using the sidebar - any interesting article, blog post, or webpage they want to remember later!`;
+          systemPrompt += `\\n\\nNote: No bookmarks have been saved${userContext} yet. Encourage them to save their first bookmark using the sidebar - any interesting article, blog post, or webpage they want to remember later!`;
         }
       }
 
