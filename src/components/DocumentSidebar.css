@@ -1,0 +1,225 @@
+.document-sidebar {
+  width: 350px;
+  height: 100vh;
+  height: 100dvh;
+  border-right: 1px solid hsl(var(--border));
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  transition: width 0.3s ease;
+}
+
+.sidebar-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-header p {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.sidebar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-input-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sidebar-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--input));
+  color: hsl(var(--foreground));
+}
+
+.sidebar-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.sidebar-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+.sidebar-hint {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.25rem;
+}
+
+.sidebar-error {
+  color: hsl(var(--destructive));
+  font-size: 0.875rem;
+}
+
+.sidebar-button {
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  border: none;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  cursor: pointer;
+}
+
+.sidebar-button:disabled {
+  opacity: 0.6;
+}
+
+.documents-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.documents-list-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.document-item {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+  background-color: hsl(var(--background));
+}
+
+.document-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.document-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.document-date {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.document-summary {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1rem;
+}
+
+.document-meta {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1rem;
+}
+
+.document-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.document-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  background: none;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  cursor: pointer;
+  color: hsl(var(--foreground));
+}
+
+.sidebar-footer .sign-out-btn {
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.sidebar-close-button {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .document-sidebar {
+    position: absolute;
+    left: -350px;
+    height: 100%;
+    z-index: 10;
+    transition: left 0.3s ease;
+  }
+
+  .document-sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-close-button {
+    display: block; /* Show on mobile */
+  }
+}
+
+.theme-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+.sign-out-button {
+  background: none;
+  border: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  margin-left: auto;
+} 

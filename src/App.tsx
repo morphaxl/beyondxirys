@@ -1,10 +1,61 @@
-import React, { useState } from 'react';
-import './App.css';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import AuthForm from './components/AuthForm';
 import ChatInterface from './components/ChatInterface';
 import type { Document } from './utils/apiService';
 import { initializeBeyondSdk } from './utils/beyondSdk';
 import { apiService } from './utils/apiService';
+
+type Theme = 'dark' | 'light' | 'system';
+
+type ThemeProviderState = {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+};
+
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
+
+function ThemeProvider({
+  children,
+  defaultTheme = 'system',
+  storageKey = 'vite-ui-theme',
+}: {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+}) {
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem(storageKey) as Theme) || defaultTheme);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.classList.add(systemTheme);
+      return;
+    }
+
+    root.classList.add(theme);
+  }, [theme]);
+
+  const value = {
+    theme,
+    setTheme: (newTheme: Theme) => {
+      localStorage.setItem(storageKey, newTheme);
+      setTheme(newTheme);
+    },
+  };
+
+  return <ThemeProviderContext.Provider value={value}>{children}</ThemeProviderContext.Provider>;
+}
+
+export const useTheme = () => {
+  const context = useContext(ThemeProviderContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,7 +66,7 @@ function App() {
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [documentsError, setDocumentsError] = useState<string>('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isInitialized = false;
     
     const initializeApp = async () => {
@@ -133,64 +184,41 @@ function App() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="app-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading Beyond Gyan...</p>
-        <small>Initializing SDK...</small>
-      </div>
-    );
-  }
-
-  if (sdkError) {
-    return (
-      <div className="app-loading">
-        <div style={{ color: '#e74c3c', textAlign: 'center' }}>
-          <h3>❌ Initialization Error</h3>
-          <p>{sdkError}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            style={{ 
-              marginTop: '20px', 
-              padding: '10px 20px', 
-              backgroundColor: '#667eea', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="app">
-        <AuthForm 
-          onAuthSuccess={handleAuthSuccess} 
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="app">
-      <ChatInterface 
-        userEmail={userEmail} 
-        onSignOut={handleSignOut}
-        documents={documents}
-        onDocumentAdded={handleDocumentAdded}
-        onDocumentDeleted={handleDocumentDeleted}
-        documentsLoading={documentsLoading}
-        documentsError={documentsError}
-        onRetryLoadDocuments={() => loadUserDocuments(true)}
-      />
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="app-container">
+        {loading ? (
+          <div className="loading-screen">
+            <div className="spinner"></div>
+            <p>Loading Beyond Gyan...</p>
+            <small>Initializing SDK...</small>
+          </div>
+        ) : sdkError ? (
+          <div className="error-screen">
+            <div className="error-content">
+              <h3>❌ Initialization Error</h3>
+              <p>{sdkError}</p>
+              <button onClick={() => window.location.reload()} className="retry-button">
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : !isAuthenticated ? (
+          <AuthForm onAuthSuccess={handleAuthSuccess} />
+        ) : (
+          <ChatInterface 
+            userEmail={userEmail} 
+            onSignOut={handleSignOut}
+            documents={documents}
+            onDocumentAdded={handleDocumentAdded}
+            onDocumentDeleted={handleDocumentDeleted}
+            documentsLoading={documentsLoading}
+            documentsError={documentsError}
+            onRetryLoadDocuments={() => loadUserDocuments(true)}
+          />
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 

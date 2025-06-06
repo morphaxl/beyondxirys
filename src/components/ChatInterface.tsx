@@ -5,6 +5,8 @@ import DocumentSidebar from './DocumentSidebar';
 import type { Document } from '../utils/apiService';
 import { getBeyondSdk } from '../utils/beyondSdk';
 import { apiService } from '../utils/apiService';
+import { PanelLeft } from 'lucide-react';
+import './ChatInterface.css';
 
 interface Message {
   id: string;
@@ -37,6 +39,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -224,80 +227,60 @@ Try asking me: "What's this bookmark about?" or "Find my bookmarks about this to
   };
 
   return (
-    <div className="chat-interface-with-sidebar">
-      <header className="chat-header">
-        <div className="header-brand">
-          <img src="/logo.svg" alt="Beyond Gyan Logo" className="header-logo" />
-          <div className="user-info">
-            <h2>Beyond Gyan</h2>
-            <p className="subtitle">Powered by IRYS</p>
-          </div>
-        </div>
-        <div className="header-actions">
-          <CreditsDisplay />
-          <button onClick={handleSignOut} className="sign-out-button">
-            Sign Out
-          </button>
-        </div>
-      </header>
-
-      <div className="chat-main-content">
-        <div className="sidebar-section">
-          <DocumentSidebar 
-            documents={documents}
-            onDocumentAdded={handleDocumentAdded} 
-            onDocumentDeleted={onDocumentDeleted}
-            documentsLoading={documentsLoading}
-            documentsError={documentsError}
-            onRetryLoadDocuments={onRetryLoadDocuments}
-          />
-        </div>
-
-        <div className="chat-section">
-          <div className="chat-messages">
-            {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
-            {loading && (
-              <div className="message-bubble assistant">
-                <div className="message-content">
-                  <div className="message-text">
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <form onSubmit={handleSendMessage} className="chat-input-form">
-            <div className="chat-input-container">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={
-                  documents.length > 0 
-                    ? `Ask me about your ${documents.length} saved bookmark(s)...`
-                    : "Save some bookmarks first, then ask me to find or summarize them..."
-                }
-                disabled={loading}
-                className="chat-input"
-              />
-              <button 
-                type="submit" 
-                disabled={!inputValue.trim() || loading}
-                className="send-button"
-              >
-                {loading ? '...' : 'Send'}
-              </button>
+    <div className="chat-layout">
+      <DocumentSidebar 
+        documents={documents}
+        onDocumentAdded={handleDocumentAdded} 
+        onDocumentDeleted={onDocumentDeleted}
+        documentsLoading={documentsLoading}
+        documentsError={documentsError}
+        onRetryLoadDocuments={onRetryLoadDocuments}
+        isOpen={isSidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onSignOut={handleSignOut}
+      />
+      <div className="main-content">
+        <div 
+          className={`content-overlay ${isSidebarOpen ? 'active' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+        <header className="chat-header">
+          <div className="header-brand">
+            <button className="sidebar-toggle-btn" onClick={() => setSidebarOpen(!isSidebarOpen)}>
+              <PanelLeft size={20} />
+            </button>
+            <img src="/logo.svg" alt="Beyond Gyan Logo" className="header-logo" />
+            <div>
+              <h2 className="header-title">Beyond Gyan</h2>
+              <p className="header-subtitle">Powered by IRYS</p>
             </div>
-          </form>
-        </div>
+          </div>
+        </header>
+        <main className="chat-messages">
+          {messages.map(msg => (
+            <MessageBubble key={msg.id} message={msg} />
+          ))}
+          <div ref={messagesEndRef} />
+        </main>
+        <form onSubmit={handleSendMessage} className="chat-input-form">
+          <div className="chat-input-container">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              placeholder="Ask me about your saved bookmarks..."
+              disabled={loading}
+              className="chat-input"
+            />
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="send-button"
+            >
+              {loading ? 'Thinking...' : 'Send'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

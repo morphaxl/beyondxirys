@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@Beyond-Network-AI/beyond-ai": "file:beyond-ai-sdk",
+    "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

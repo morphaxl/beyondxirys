@@ -1,0 +1,51 @@
+.message-bubble {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.message-bubble.user {
+  justify-content: flex-end;
+}
+
+.message-bubble.assistant {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 75%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+}
+
+.message-bubble.user .message-content {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.message-bubble.assistant .message-content {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.message-time {
+  font-size: 0.75rem;
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.message-bubble.user .message-time {
+  color: hsla(var(--primary-foreground), 0.7);
+}
+
+.message-bubble.assistant .message-time {
+  color: hsl(var(--muted-foreground));
+}
+
+.message-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.message-bubble.user .message-content a {
+    color: hsl(var(--primary-foreground));
+} 

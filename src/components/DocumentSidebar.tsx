@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { apiService, type Document, type DocumentStats } from '../utils/apiService';
+import { apiService, type Document } from '../utils/apiService';
+import { X, Sun, Moon } from 'lucide-react';
+import './DocumentSidebar.css';
+import { useTheme } from '../App';
+import CreditsDisplay from './CreditsDisplay';
 
 interface DocumentSidebarProps {
   documents: Document[];
@@ -8,6 +12,9 @@ interface DocumentSidebarProps {
   documentsLoading?: boolean;
   documentsError?: string;
   onRetryLoadDocuments?: () => Promise<Document[]>;
+  isOpen: boolean;
+  onClose: () => void;
+  onSignOut: () => void;
 }
 
 const DocumentSidebar: React.FC<DocumentSidebarProps> = ({ 
@@ -16,11 +23,15 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
   onDocumentDeleted,
   documentsLoading = false,
   documentsError = '',
-  onRetryLoadDocuments
+  onRetryLoadDocuments,
+  isOpen,
+  onClose,
+  onSignOut
 }) => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { theme, setTheme } = useTheme();
 
   const handleAddDocument = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,22 +41,11 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     setError('');
 
     try {
-      console.log('📋 Adding document via backend API:', url);
-      
-      // Add document through backend API
       const document = await apiService.addDocument(url);
-      
-      console.log('✅ Document added successfully:', document);
-      
-      // Notify parent component
       onDocumentAdded(document);
       setUrl('');
-      
-      console.log('📄 Document stored on Irys:', document.irysUrl);
     } catch (err: any) {
-      console.error('❌ Failed to add document:', err);
       let errorMessage = 'Failed to add document';
-      
       if (err.message.includes('Invalid URL')) {
         errorMessage = 'Please provide a valid URL';
       } else if (err.message.includes('Failed to access')) {
@@ -55,7 +55,6 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       } else if (err.message.includes('storage') || err.message.includes('Irys')) {
         errorMessage = 'Failed to store document permanently';
       }
-      
       setError(errorMessage + (err.message ? ` (${err.message})` : ''));
     } finally {
       setLoading(false);
@@ -72,15 +71,10 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
   };
 
   return (
-    <div className="document-sidebar">
-      <div className="sidebar-header">
-        <h3>🔖 Smart Bookmarks</h3>
-        <p className="sidebar-subtitle">Save any article or webpage - I'll remember it so you don't have to!</p>
-      </div>
-
-      <form onSubmit={handleAddDocument} className="url-form">
-        <div className="form-group">
-          <label htmlFor="url">Add Bookmark URL:</label>
+    <aside className={`document-sidebar ${isOpen ? 'open' : ''}`}>
+      <form onSubmit={handleAddDocument} className="sidebar-form">
+        <div>
+          <label htmlFor="url" className="sidebar-input-label">Add Bookmark URL:</label>
           <input
             type="url"
             id="url"
@@ -89,59 +83,36 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
             placeholder="https://example.com/article"
             disabled={loading}
             required
+            className="sidebar-input"
           />
-          <small className="url-hint">
+          <small className="sidebar-hint">
             Paste any article URL to add to your knowledge base.
           </small>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="sidebar-error">{error}</div>}
 
         <button 
           type="submit" 
           disabled={loading || !url.trim()}
-          className="add-document-btn"
+          className="sidebar-button"
         >
-          {loading ? 'Saving...' : '🔖 Save Bookmark'}
+          {loading ? 'Saving...' : 'Save Bookmark'}
         </button>
       </form>
 
       <div className="documents-list">
-        <div className="documents-header">
-          <h4>Saved Bookmarks ({documents.length})</h4>
-          {documentsLoading && (
-            <div className="documents-loading">
-              <div className="loading-spinner"></div>
-              <small>Loading documents...</small>
-            </div>
-          )}
-        </div>
-
-        {documentsError && (
-          <div className="documents-error">
-            <div className="error-message">
-              ❌ Failed to load bookmarks: {documentsError}
-            </div>
-            {onRetryLoadDocuments && (
-              <button 
-                onClick={onRetryLoadDocuments} 
-                className="retry-btn"
-                disabled={documentsLoading}
-              >
-                🔄 Retry Loading Bookmarks
-              </button>
-            )}
-          </div>
-        )}
-
+        <h4 className="documents-list-header">Saved Bookmarks ({documents.length})</h4>
+        
+        {documentsLoading && <div>Loading...</div>}
+        {documentsError && <div className="sidebar-error">Error: {documentsError}</div>}
+        
         {!documentsLoading && !documentsError && documents.length === 0 ? (
-          <p className="no-documents">
-            No bookmarks saved yet. Add your first bookmark above and I'll remember it for you!
-          </p>
-        ) : !documentsLoading && !documentsError ? (
+          <p>No bookmarks saved yet.</p>
+        ) : (
           documents.map((doc) => (
             <div key={doc.id} className="document-item">
-              <div className="document-header">
+              <div className="document-item-header">
                 <h5 className="document-title">{doc.title}</h5>
                 <span className="document-date">
                   {new Date(doc.addedAt).toLocaleDateString()}
@@ -151,53 +122,39 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               <p className="document-summary">{doc.summary}</p>
               
               <div className="document-meta">
-                <small>📊 {doc.wordCount} words • 🌐 {doc.metadata?.domain}</small>
+                <span>{doc.wordCount} words</span> • <span>{doc.metadata?.domain}</span>
               </div>
               
               <div className="document-links">
-                <a 
-                  href={doc.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="source-link"
-                  title="View original source"
-                >
-                  🔗 Source
-                </a>
-                <a 
-                  href={doc.irysUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="irys-link"
-                  title="View permanent Irys storage"
-                >
-                  🌐 Irys Link
-                </a>
+                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="document-link">Source</a>
+                <a href={doc.irysUrl} target="_blank" rel="noopener noreferrer" className="document-link">Irys Link</a>
                 <button
                   onClick={() => handleDeleteDocument(doc.id)}
-                  className="delete-btn"
-                  title="Remove bookmark"
+                  className="delete-button"
                 >
                   🗑️
                 </button>
               </div>
             </div>
           ))
-        ) : null}
+        )}
       </div>
 
-              {loading && (
-        <div className="processing-status">
-          <div className="loading-spinner"></div>
-          <div className="status-text">
-            <div>🔍 Reading webpage content...</div>
-            <div>📦 Processing bookmark...</div>
-            <div>💾 Saving permanently...</div>
-            <div>🔗 Creating smart bookmark...</div>
-          </div>
+      <div className="sidebar-footer">
+        <div className="sidebar-actions">
+          <CreditsDisplay />
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="theme-toggle-btn"
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
-      )}
-    </div>
+        <button onClick={onSignOut} className="sign-out-btn">
+          Sign Out
+        </button>
+      </div>
+    </aside>
   );
 };
 

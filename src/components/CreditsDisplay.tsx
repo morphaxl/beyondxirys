@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getBeyondSdk } from "../utils/beyondSdk";
+import './CreditsDisplay.css';
 
 interface CreditBalance {
   monthlyLimit: string;
@@ -39,27 +40,27 @@ const CreditsDisplay: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="credits-display-simple">
-        <span className="credits-icon">⏳</span>
-        <span className="credits-loading">Loading...</span>
+      <div className="credits-display">
+        <span>⏳</span>
+        <span>Loading...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="credits-display-simple">
-        <span className="credits-icon">⚠️</span>
-        <span className="credits-error">Error</span>
+      <div className="credits-display">
+        <span>⚠️</span>
+        <span>Error</span>
       </div>
     );
   }
 
   return (
-    <div className="credits-display-simple">
-      <span className="credits-icon">✨</span>
+    <div className="credits-display">
+      <span>✨</span>
       <span className="credits-count">{getRemainingCredits().toFixed(0)}</span>
-      <span className="credits-label">Beyond Credits</span>
+      <span>Beyond Credits</span>
     </div>
   );
 };
