@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { apiService, type Document } from '../utils/apiService';
-import { X, Sun, Moon } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import './DocumentSidebar.css';
 import { useTheme } from '../App';
 import CreditsDisplay from './CreditsDisplay';
@@ -11,9 +11,7 @@ interface DocumentSidebarProps {
   onDocumentDeleted: (documentId: string) => void;
   documentsLoading?: boolean;
   documentsError?: string;
-  onRetryLoadDocuments?: () => Promise<Document[]>;
   isOpen: boolean;
-  onClose: () => void;
   onSignOut: () => void;
 }
 
@@ -23,9 +21,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
   onDocumentDeleted,
   documentsLoading = false,
   documentsError = '',
-  onRetryLoadDocuments,
   isOpen,
-  onClose,
   onSignOut
 }) => {
   const [url, setUrl] = useState('');

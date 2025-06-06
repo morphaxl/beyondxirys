@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble from './MessageBubble';
-import CreditsDisplay from './CreditsDisplay';
 import DocumentSidebar from './DocumentSidebar';
 import type { Document } from '../utils/apiService';
 import { getBeyondSdk } from '../utils/beyondSdk';
