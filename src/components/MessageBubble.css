@@ -1,44 +1,64 @@
-.message-bubble {
+.message-bubble-wrapper {
   display: flex;
   margin-bottom: 1rem;
 }
 
-.message-bubble.user {
+.message-bubble-wrapper.user {
   justify-content: flex-end;
 }
 
-.message-bubble.assistant {
+.message-bubble-wrapper.assistant {
   justify-content: flex-start;
 }
 
-.message-content {
-  max-width: 75%;
+.message-bubble {
+  max-width: 80%;
   padding: 0.75rem 1rem;
   border-radius: var(--radius);
+  position: relative;
 }
 
-.message-bubble.user .message-content {
+.message-bubble-wrapper.user .message-bubble {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
 
-.message-bubble.assistant .message-content {
+.message-bubble-wrapper.assistant .message-bubble {
   background-color: hsl(var(--secondary));
   color: hsl(var(--secondary-foreground));
 }
 
+.message-content p {
+  margin: 0 0 1.5rem 0;
+}
+
+.message-content ul {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
 .message-time {
   font-size: 0.75rem;
-  text-align: right;
-  margin-top: 0.5rem;
-}
-
-.message-bubble.user .message-time {
-  color: hsla(var(--primary-foreground), 0.7);
-}
-
-.message-bubble.assistant .message-time {
   color: hsl(var(--muted-foreground));
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1rem;
+}
+
+.message-bubble-wrapper.user .message-time {
+  color: hsl(var(--primary-foreground) / 0.7);
+}
+
+.document-context {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+.document-context h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .message-content a {

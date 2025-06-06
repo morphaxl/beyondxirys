@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import './MessageBubble.css';
 import { format } from 'date-fns';
 
@@ -17,8 +18,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isAssistant = message.role === 'assistant';
 
   return (
-    <div className={`message-bubble ${isAssistant ? 'assistant' : 'user'}`}>
-      <div className="message-content">
+    <div className={`message-bubble-wrapper ${isAssistant ? 'assistant' : 'user'}`}>
+      <div className="message-bubble">
         {isAssistant && message.documentContext && message.documentContext.length > 0 && (
           <div className="document-context">
             <h5>Retrieved from your bookmarks:</h5>
@@ -33,10 +34,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             </ul>
           </div>
         )}
-        <p>{message.content}</p>
-      </div>
-      <div className="message-time">
-        {format(new Date(message.timestamp), 'p')}
+        <div className="message-content">
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        </div>
+        <div className="message-time">
+          {format(new Date(message.timestamp), 'p')}
+        </div>
       </div>
     </div>
   );
