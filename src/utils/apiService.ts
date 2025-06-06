@@ -1,35 +1,5 @@
 // API URL configuration
-const API_BASE_URL = (() => {
-  if (typeof window !== 'undefined') {
-    const currentDomain = window.location.hostname;
-    const currentPort = window.location.port;
-
-    // Local development - check for localhost or 127.0.0.1
-    if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
-      console.log('🏠 Local development detected, using localhost:3001 for API');
-      return 'http://localhost:3001/api';
-    }
-
-    // Deployed on Replit - backend serves frontend from same server with /api prefix
-    if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
-      console.log('🌐 Replit deployment detected, using same origin for API');
-      return `${window.location.origin}/api`;
-    }
-
-    // Development environment - frontend on 5001, backend on 3001
-    if (currentDomain.includes('replit.dev')) {
-      // Extract base domain without port
-      const baseDomain = currentDomain.split(':')[0];
-      const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
-      console.log('🔧 Replit dev environment detected, using:', baseUrl);
-      return baseUrl;
-    }
-  }
-
-  // Development fallback
-  console.log('🔄 Using fallback API URL: http://localhost:3001/api');
-  return 'http://localhost:3001/api';
-})();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 console.log('🔗 API Base URL configured as:', API_BASE_URL);
 
