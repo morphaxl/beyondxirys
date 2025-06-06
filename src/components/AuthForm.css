@@ -42,6 +42,7 @@
   background-color: hsl(var(--input));
   color: hsl(var(--foreground));
   margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
 .auth-input:focus {

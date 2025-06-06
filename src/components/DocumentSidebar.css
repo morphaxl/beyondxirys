@@ -43,6 +43,7 @@
   border: 1px solid hsl(var(--border));
   background-color: hsl(var(--input));
   color: hsl(var(--foreground));
+  font-size: 1rem;
 }
 
 .sidebar-input::placeholder {
