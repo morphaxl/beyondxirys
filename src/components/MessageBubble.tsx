@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './MessageBubble.css';
 import { format } from 'date-fns';
 
@@ -35,7 +36,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           </div>
         )}
         <div className="message-content">
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
         </div>
         <div className="message-time">
           {format(new Date(message.timestamp), 'p')}
