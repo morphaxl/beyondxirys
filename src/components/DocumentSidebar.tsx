@@ -5,20 +5,23 @@ interface DocumentSidebarProps {
   documents: Document[];
   onDocumentAdded: (document: Document) => void;
   onDocumentDeleted: (documentId: string) => void;
+  documentsLoading?: boolean;
+  documentsError?: string;
+  onRetryLoadDocuments?: () => Promise<Document[]>;
 }
 
 const DocumentSidebar: React.FC<DocumentSidebarProps> = ({ 
   documents, 
   onDocumentAdded, 
-  onDocumentDeleted 
+  onDocumentDeleted,
+  documentsLoading = false,
+  documentsError = '',
+  onRetryLoadDocuments
 }) => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [irysBalance, setIrysBalance] = useState<string>('0');
-  const [initializationError, setInitializationError] = useState('');
-  const [serviceWalletInfo, setServiceWalletInfo] = useState<any>(null);
-  const [stats, setStats] = useState<DocumentStats | null>(null);
+  const [serviceActive, setServiceActive] = useState(false);
 
   const handleAddDocument = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +41,6 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       // Notify parent component
       onDocumentAdded(document);
       setUrl('');
-      
-      // Update service info
-      await updateServiceInfo();
       
       console.log('📄 Document stored on Irys:', document.irysUrl);
     } catch (err: any) {
@@ -63,50 +63,13 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     }
   };
 
-  const updateServiceInfo = async () => {
+  const checkServiceStatus = async () => {
     try {
-      // Get statistics (documents are managed by parent)
-      const { statistics } = await apiService.getAllDocuments();
-      setStats(statistics);
-      
-      // Get Irys balance
-      const balance = await apiService.getIrysBalance();
-      setIrysBalance(balance.balance);
-      
-      setInitializationError('');
-    } catch (error: any) {
-      console.error('❌ Failed to update service info:', error);
-      setInitializationError('Backend connection issue');
-    }
-  };
-
-  const verifyServiceWallet = async () => {
-    try {
-      setInitializationError('Checking service wallet...');
-      const walletInfo = await apiService.getIrysWallet();
-      setServiceWalletInfo(walletInfo);
-      setInitializationError('✅ Service wallet verified');
-      console.log('🔍 Service wallet info:', walletInfo);
-    } catch (error: any) {
-      setInitializationError(`❌ Service wallet check failed: ${error.message}`);
-      console.error('Service wallet error:', error);
-    }
-  };
-
-  const testBackendConnection = async () => {
-    try {
-      setError('');
-      setInitializationError('Testing backend connection...');
-      
       const isHealthy = await apiService.healthCheck();
-      if (isHealthy) {
-        await updateServiceInfo();
-        setInitializationError('✅ Connected to backend service');
-      } else {
-        setInitializationError('❌ Backend service not available');
-      }
+      setServiceActive(isHealthy);
     } catch (error: any) {
-      setInitializationError(`❌ Connection failed: ${error.message}`);
+      console.error('❌ Service check failed:', error);
+      setServiceActive(false);
     }
   };
 
@@ -114,69 +77,30 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
     try {
       await apiService.deleteDocument(documentId);
       onDocumentDeleted(documentId);
-      await updateServiceInfo();
     } catch (error: any) {
       setError(`Failed to delete document: ${error.message}`);
     }
   };
 
   React.useEffect(() => {
-    updateServiceInfo();
+    checkServiceStatus();
   }, []);
 
   return (
     <div className="document-sidebar">
       <div className="sidebar-header">
-        <h3>📚 Document Storage</h3>
-        <div className="irys-status">
-          <div className="service-info">
-            <small className="service-label">🔧 Backend Service (FREE Irys Devnet)</small>
-            <div className="irys-balance">
-              <small>Balance: {irysBalance} ETH (Free Tokens)</small>
-            </div>
-          </div>
-          
-          {serviceWalletInfo && (
-            <div className="wallet-info">
-              <small><strong>Service Wallet:</strong> {serviceWalletInfo.address.slice(0, 6)}...{serviceWalletInfo.address.slice(-4)}</small>
-              <small><strong>Network:</strong> {serviceWalletInfo.network}</small>
-              <small><strong>Balance:</strong> {serviceWalletInfo.balance} ETH</small>
-              <small className="devnet-info">✅ Using FREE devnet uploads</small>
-            </div>
-          )}
-
-          {stats && (
-            <div className="stats-info">
-              <small><strong>Total Documents:</strong> {stats.totalDocuments}</small>
-              <small><strong>Total Words:</strong> {stats.totalWords.toLocaleString()}</small>
-              <small><strong>Domains:</strong> {stats.domains.length}</small>
-            </div>
-          )}
-          
-          <div className="devnet-notice">
-            <small>📝 Backend handles all scraping & Irys storage automatically</small>
-          </div>
-          
-          {initializationError && (
-            <div className={`initialization-status ${initializationError.includes('✅') ? 'success' : 'error'}`}>
-              <small>{initializationError}</small>
-            </div>
-          )}
-          
-          <div className="connection-buttons">
-            <button onClick={verifyServiceWallet} className="test-connection-btn">
-              Check Service
-            </button>
-            <button onClick={testBackendConnection} className="test-connection-btn">
-              Test Backend
-            </button>
+        <h3>🔖 Smart Bookmarks</h3>
+        <div className="service-status">
+          <div className="service-indicator">
+            <span className={`status-dot ${serviceActive ? 'active' : 'inactive'}`}></span>
+            <span className="status-text">Service {serviceActive ? 'Active' : 'Inactive'}</span>
           </div>
         </div>
       </div>
 
       <form onSubmit={handleAddDocument} className="url-form">
         <div className="form-group">
-          <label htmlFor="url">Add Document URL:</label>
+          <label htmlFor="url">Add Bookmark URL:</label>
           <input
             type="url"
             id="url"
@@ -187,7 +111,7 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
             required
           />
           <small className="url-hint">
-            Backend will scrape content and store permanently on Irys devnet (FREE).
+            Save any article or webpage - I'll remember it so you don't have to!
           </small>
         </div>
 
@@ -198,17 +122,43 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
           disabled={loading || !url.trim()}
           className="add-document-btn"
         >
-          {loading ? 'Processing...' : '📄 Add Document'}
+          {loading ? 'Saving...' : '🔖 Save Bookmark'}
         </button>
       </form>
 
       <div className="documents-list">
-        <h4>Stored Documents ({documents.length})</h4>
-        {documents.length === 0 ? (
+        <div className="documents-header">
+          <h4>Saved Bookmarks ({documents.length})</h4>
+          {documentsLoading && (
+            <div className="documents-loading">
+              <div className="loading-spinner"></div>
+              <small>Loading documents...</small>
+            </div>
+          )}
+        </div>
+
+        {documentsError && (
+          <div className="documents-error">
+            <div className="error-message">
+              ❌ Failed to load bookmarks: {documentsError}
+            </div>
+            {onRetryLoadDocuments && (
+              <button 
+                onClick={onRetryLoadDocuments} 
+                className="retry-btn"
+                disabled={documentsLoading}
+              >
+                🔄 Retry Loading Bookmarks
+              </button>
+            )}
+          </div>
+        )}
+
+        {!documentsLoading && !documentsError && documents.length === 0 ? (
           <p className="no-documents">
-            No documents stored yet. Add your first document above to start building your knowledge base!
+            No bookmarks saved yet. Add your first bookmark above and I'll remember it for you!
           </p>
-        ) : (
+        ) : !documentsLoading && !documentsError ? (
           documents.map((doc) => (
             <div key={doc.id} className="document-item">
               <div className="document-header">
@@ -246,25 +196,24 @@ const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                 <button
                   onClick={() => handleDeleteDocument(doc.id)}
                   className="delete-btn"
-                  title="Delete document"
+                  title="Remove bookmark"
                 >
                   🗑️
                 </button>
               </div>
             </div>
           ))
-        )}
+        ) : null}
       </div>
 
-      {loading && (
+              {loading && (
         <div className="processing-status">
           <div className="loading-spinner"></div>
           <div className="status-text">
-            <div>🔍 Scraping content via backend...</div>
-            <div>📦 Processing data...</div>
-            <div>🆓 Uploading to Irys devnet (FREE)...</div>
-            <div>🌐 Creating permanent storage...</div>
-            <div>🔗 Generating permanent link...</div>
+            <div>🔍 Reading webpage content...</div>
+            <div>📦 Processing bookmark...</div>
+            <div>💾 Saving permanently...</div>
+            <div>🔗 Creating smart bookmark...</div>
           </div>
         </div>
       )}

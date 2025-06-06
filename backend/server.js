@@ -272,7 +272,7 @@ app.delete('/api/documents/:id', async (req, res) => {
  */
 app.post('/api/chat/message', async (req, res) => {
   try {
-    const { message, includeDocuments = true } = req.body;
+    const { message, includeDocuments = true, conversationHistory = [] } = req.body;
     const userInfo = req.userInfo;
     
     if (!message) {
@@ -286,22 +286,41 @@ app.post('/api/chat/message', async (req, res) => {
     console.log('👤 User:', userInfo ? userInfo.email : 'No user context');
     
     let documentContext = [];
-    let systemPrompt = `You are a knowledgeable AI assistant with access to a permanent document storage system powered by Irys. Your role is to:
+    let systemPrompt = `You are Beyond Gyan, an intelligent Smart Bookmark Assistant. Your role is to quickly help users find and rediscover their saved bookmarks.
 
-1. **Document Knowledge Base Assistant**: Help users understand, analyze, and extract insights from their stored documents
-2. **Content Analyzer**: Provide summaries, explanations, and answer questions about document content
-3. **Research Helper**: Connect information across multiple documents and provide comprehensive responses
-4. **Information Organizer**: Help users organize and make sense of their collected knowledge
+CRITICAL CONTEXT AWARENESS:
+- ALWAYS maintain conversation context - remember what you just discussed with the user
+- When users say "it", "that", "the link", "the article" etc., they are referring to the SPECIFIC bookmark that was most recently discussed
+- NEVER assume "it" means "all bookmarks" - it always refers to a single, specific bookmark from the recent conversation
+- Pay attention to the conversation flow and identify the exact bookmark being referenced
 
-When responding:
-- Reference specific documents when relevant and cite them by title
-- Quote or paraphrase relevant content from the stored documents
-- If asked about topics covered in the documents, provide detailed answers based on the actual content
-- If asked about topics not covered in the documents, clearly state that and provide general knowledge
-- Help users discover connections between different documents
-- Suggest questions they might want to explore based on their document collection
+IMPORTANT BEHAVIOR:
+- When users ask to "find a link about X" or "looking for that bookmark about Y", immediately identify and show the relevant bookmark(s)
+- When users ask "give me the link to it" or "can you give me the link", immediately provide the bookmark card for what was just discussed
+- Be direct and concise - don't be verbose when users want to find something specific
+- Use natural, conversational language
+- When showing bookmarks, format them clearly with title, summary, and link
 
-You have access to permanently stored documents that users have added to build their knowledge base.`;
+RESPONSE PATTERNS:
+- For "find/looking for" queries: Show the bookmark directly with minimal explanation
+- For "what was that" queries: Identify the bookmark and provide a brief description
+- For "give me the link" or "link to it" queries: Immediately show the bookmark card for the recently discussed item
+- For "summarize it/this/that" queries: Summarize ONLY the specific bookmark that was just discussed, not all bookmarks
+- For "tell me about it" queries: Provide information about the specific bookmark being referenced
+- For general questions: Reference relevant bookmarks naturally in your response
+
+BOOKMARK FORMATTING:
+When referencing bookmarks, use this format:
+**[Bookmark Title]**
+Summary: [Brief summary]
+Link: [URL]
+---
+
+PERSONALITY:
+- Direct and helpful - like a smart assistant who immediately knows what you're looking for
+- Maintain conversation context - remember what we just talked about
+- Minimal chatter when users want specific bookmarks
+- Friendly but efficient`;
     
     if (includeDocuments) {
       // Get user-specific document content for comprehensive context
@@ -320,26 +339,44 @@ You have access to permanently stored documents that users have added to build t
         console.log(`📚 Providing AI with ${documentContext.length} user documents`);
         console.log('📊 Total content size:', documentContext.reduce((sum, doc) => sum + doc.content.length, 0), 'characters');
         
-        // Enhanced system prompt with user-specific document context
+        // Enhanced system prompt with user-specific bookmark context
         systemPrompt += `
 
-IMPORTANT: You currently have access to ${documentContext.length} documents in ${userInfo ? userInfo.email + "'s" : "the user's"} personal knowledge base:
+IMPORTANT: You currently have access to ${documentContext.length} smart bookmarks in ${userInfo ? userInfo.email + "'s" : "the user's"} personal bookmark collection:
 
 ${documentContext.map((doc, index) => `
 ${index + 1}. **"${doc.title}"**
-   - Source: ${doc.url}
-   - Added: ${new Date(doc.addedAt).toLocaleDateString()}
+   - Original URL: ${doc.url}
+   - Saved: ${new Date(doc.addedAt).toLocaleDateString()}
    - Summary: ${doc.summary}
    - Full Content: ${doc.content}
    
 ---`).join('\n')}
 
-Use this content to provide accurate, detailed responses. Always cite which document(s) you're referencing.`;
-      } else {
-        const userContext = userInfo ? ` for ${userInfo.email}` : '';
-        systemPrompt += `\n\nNote: No documents have been added to the knowledge base${userContext} yet. Encourage them to add documents using the sidebar to build their personal knowledge repository.`;
+RESPONSE FORMAT FOR BOOKMARK QUERIES:
+When users ask to "find", "looking for", or want a specific bookmark, respond like this:
+
+Found it! Here's your bookmark about [topic]:
+
+**[Exact Bookmark Title]**
+Summary: [Brief summary]
+Link: ${documentContext.length > 0 ? documentContext[0].url : 'https://example.com'}
+---
+
+[Optional brief comment about the bookmark]
+
+IMPORTANT: Always format bookmark responses exactly like the example above, using the exact title, summary, and URL from the bookmark data.`;
+        } else {
+          const userContext = userInfo ? ` for ${userInfo.email}` : '';
+          systemPrompt += `\n\nNote: No bookmarks have been saved${userContext} yet. Encourage them to save their first bookmark using the sidebar - any interesting article, blog post, or webpage they want to remember later!`;
+        }
       }
-    }
+
+      // Log conversation history for debugging (conversation now handled by Beyond AI directly)
+      if (conversationHistory && conversationHistory.length > 0) {
+        console.log('📝 Conversation history received:', conversationHistory.length, 'messages');
+        console.log('📝 Conversation history details:', JSON.stringify(conversationHistory, null, 2));
+      }
 
     // Prepare the enhanced response with system context
     const enhancedResponse = {

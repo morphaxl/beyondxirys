@@ -12,6 +12,8 @@ function App() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [sdkError, setSdkError] = useState<string>('');
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [documentsError, setDocumentsError] = useState<string>('');
 
   React.useEffect(() => {
     let isInitialized = false;
@@ -33,16 +35,7 @@ function App() {
           setUserEmail(email);
           
           // Load user-specific documents from backend/Irys
-          console.log('📚 Loading user-specific documents...');
-          try {
-            const { documents: existingDocs } = await apiService.getAllDocuments();
-            console.log(`✅ Loaded ${existingDocs.length} user documents`);
-            setDocuments(existingDocs);
-          } catch (docError: any) {
-            console.warn('⚠️ Could not load user documents:', docError.message);
-            // Don't fail the whole app if documents can't be loaded
-            // User can still add new documents
-          }
+          await loadUserDocuments(true);
         }
         
         isInitialized = true;
@@ -100,15 +93,7 @@ function App() {
     setUserEmail(email);
     
     // Load user documents after successful authentication
-    console.log('👤 User authenticated, loading documents...');
-    try {
-      const { documents: userDocs } = await apiService.getAllDocuments();
-      console.log(`✅ Loaded ${userDocs.length} user documents after login`);
-      setDocuments(userDocs);
-    } catch (error: any) {
-      console.warn('⚠️ Could not load user documents after login:', error.message);
-      // Continue without documents - user can add new ones
-    }
+    await loadUserDocuments(true);
   };
 
   const handleSignOut = () => {
@@ -125,6 +110,27 @@ function App() {
 
   const handleDocumentDeleted = (documentId: string) => {
     setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+  };
+
+  // Function to load user documents with proper error handling
+  const loadUserDocuments = async (showLoading = false) => {
+    if (showLoading) setDocumentsLoading(true);
+    setDocumentsError('');
+    
+    try {
+      console.log('📚 Loading user-specific documents...');
+      const { documents: existingDocs } = await apiService.getAllDocuments();
+      console.log(`✅ Loaded ${existingDocs.length} user documents`);
+      setDocuments(existingDocs);
+      return existingDocs;
+    } catch (docError: any) {
+      console.warn('⚠️ Could not load user documents:', docError.message);
+      setDocumentsError(docError.message || 'Failed to load documents');
+      // Return empty array but don't fail the app
+      return [];
+    } finally {
+      if (showLoading) setDocumentsLoading(false);
+    }
   };
 
   if (loading) {
@@ -180,6 +186,9 @@ function App() {
         documents={documents}
         onDocumentAdded={handleDocumentAdded}
         onDocumentDeleted={handleDocumentDeleted}
+        documentsLoading={documentsLoading}
+        documentsError={documentsError}
+        onRetryLoadDocuments={() => loadUserDocuments(true)}
       />
     </div>
   );

@@ -16,6 +16,8 @@ body {
 
 .app {
   min-height: 100vh;
+  height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -183,7 +185,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 12px 24px;
   background: white;
   border-bottom: 1px solid #e1e5e9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -201,15 +203,24 @@ body {
   border-radius: 8px;
 }
 
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .user-info h2 {
   color: #333;
-  margin-bottom: 4px;
-  font-size: 24px;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.1;
 }
 
 .user-info p {
   color: #666;
-  font-size: 14px;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1;
 }
 
 .header-actions {
@@ -289,14 +300,16 @@ body {
 }
 
 .credits-loading, .credits-error {
-  color: #666;
+  color: #a0aec0;
   font-size: 14px;
+  font-weight: 500;
   text-align: center;
-  padding: 16px;
+  padding: 0;
+  margin: 0;
 }
 
 .credits-error {
-  color: #e74c3c;
+  color: #ff6b6b;
 }
 
 /* Simplified Credits Display */
@@ -539,14 +552,20 @@ body {
   /* Chat Interface Mobile Styles */
   .chat-header {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     text-align: center;
-    padding: 16px 20px;
+    padding: 12px 20px;
   }
 
   .header-brand {
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .user-info {
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
   }
 
   .header-actions {
@@ -632,6 +651,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100%;
   background: white;
 }
 
@@ -639,6 +659,7 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  flex-direction: row;
 }
 
 .chat-section {
@@ -651,8 +672,9 @@ body {
 .sidebar-section {
   width: 350px;
   background: #f8f9fa;
-  border-left: 1px solid #e1e5e9;
+  border-right: 1px solid #e1e5e9;
   overflow-y: auto;
+  order: -1;
 }
 
 /* Document Sidebar Styles */
@@ -671,6 +693,147 @@ body {
   color: #333;
   margin-bottom: 8px;
   font-size: 18px;
+}
+
+/* Service Status Indicator */
+.service-status {
+  margin-bottom: 16px;
+}
+
+.service-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  background-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.status-dot.inactive {
+  background-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Bookmark Cards in Chat */
+.bookmark-cards {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bookmark-card {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.bookmark-card:hover {
+  background: #f1f3f4;
+  border-color: #d0d7de;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.bookmark-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.bookmark-icon {
+  font-size: 16px;
+  margin-left: 8px;
+  opacity: 0.7;
+}
+
+.bookmark-summary {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bookmark-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bookmark-link {
+  font-size: 12px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.bookmark-link:hover {
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+}
+
+/* Clickable links in chat messages */
+.chat-link {
+  color: #667eea;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+  word-break: break-all;
+}
+
+.chat-link:hover {
+  color: #4c63d2;
+  text-decoration: none;
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+
+.message-bubble.user .chat-link {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-bubble.user .chat-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .service-info {
@@ -818,6 +981,75 @@ body {
   overflow-y: auto;
 }
 
+.documents-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e1e5e9;
+  padding-bottom: 8px;
+}
+
+.documents-header h4 {
+  color: #333;
+  margin: 0;
+  font-size: 16px;
+}
+
+.documents-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.documents-loading .loading-spinner {
+  width: 16px;
+  height: 16px;
+  margin-bottom: 0;
+}
+
+.documents-loading small {
+  color: #666;
+  font-size: 12px;
+}
+
+.documents-error {
+  background: #ffeaea;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.documents-error .error-message {
+  color: #c62828;
+  font-size: 13px;
+  margin-bottom: 8px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.retry-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-btn:hover:not(:disabled) {
+  background: #d32f2f;
+}
+
+.retry-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .documents-list h4 {
   color: #333;
   margin-bottom: 16px;
@@ -952,9 +1184,10 @@ body {
 
   .sidebar-section {
     width: 100%;
-    border-left: none;
-    border-top: 1px solid #e1e5e9;
+    border-right: none;
+    border-bottom: 1px solid #e1e5e9;
     max-height: 40vh;
+    order: 0;
   }
 
   .document-sidebar {
@@ -1112,18 +1345,16 @@ body {
 }
 
 .delete-btn {
-  background: #fee;
-  color: #d63384;
-  border: 1px solid #f5c2c7;
+  background: #ffebee;
+  color: #c62828;
+  border: none;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-left: 8px;
+  transition: background-color 0.2s ease;
 }
 
 .delete-btn:hover {
-  background: #f8d7da;
-  border-color: #f1aeb5;
+  background: #ffcdd2;
 }

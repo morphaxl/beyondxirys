@@ -40,7 +40,8 @@ const CreditsDisplay: React.FC = () => {
   if (loading) {
     return (
       <div className="credits-display-simple">
-        <div className="credits-loading">Loading...</div>
+        <span className="credits-icon">⏳</span>
+        <span className="credits-loading">Loading...</span>
       </div>
     );
   }
@@ -48,7 +49,8 @@ const CreditsDisplay: React.FC = () => {
   if (error) {
     return (
       <div className="credits-display-simple">
-        <div className="credits-error">Error loading credits</div>
+        <span className="credits-icon">⚠️</span>
+        <span className="credits-error">Error</span>
       </div>
     );
   }

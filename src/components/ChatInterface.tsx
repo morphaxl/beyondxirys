@@ -19,6 +19,9 @@ interface ChatInterfaceProps {
   documents: Document[];
   onDocumentAdded: (document: Document) => void;
   onDocumentDeleted: (documentId: string) => void;
+  documentsLoading?: boolean;
+  documentsError?: string;
+  onRetryLoadDocuments?: () => Promise<Document[]>;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -26,7 +29,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSignOut, 
   documents, 
   onDocumentAdded,
-  onDocumentDeleted
+  onDocumentDeleted,
+  documentsLoading = false,
+  documentsError = '',
+  onRetryLoadDocuments
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -37,21 +43,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     // Add welcome message
     const welcomeMessage: Message = {
       id: '1',
-      content: `🤖 **Welcome to your AI-powered Document Knowledge Base!**
+      content: `🔖 **Welcome to Beyond Gyan - Your Smart Bookmark Assistant!**
 
-I'm your intelligent document assistant with access to permanently stored content on Irys. Here's what I can help you with:
+I'm your intelligent bookmark companion that remembers everything you save, so you don't have to! Here's how I can help:
 
-📚 **Document Analysis**: Ask me questions about any documents you've added - I have access to their full content, not just summaries
+🔍 **Find Forgotten Bookmarks**: Ask me "What was that article about AI trends?" and I'll find it instantly
 
-🔍 **Deep Research**: I can analyze, compare, and find connections across all your stored documents  
+📚 **Bookmark Analysis**: I can read and understand the full content of every webpage you save
 
-📝 **Content Creation**: Request summaries, newsletters, reports, or insights based on your document collection
+💡 **Smart Summaries**: Get quick summaries of any bookmark or group of related bookmarks
 
-🎯 **Smart Search**: Ask about specific topics and I'll reference relevant information from your documents with citations
+🎯 **Content Discovery**: Ask me to find bookmarks on specific topics or compare different articles
 
-**Current Status**: ${documents.length > 0 ? `I have access to ${documents.length} document(s) in your knowledge base` : 'No documents added yet - use the sidebar to start building your knowledge base!'}
+**Current Status**: ${documents.length > 0 ? `I'm tracking ${documents.length} smart bookmark(s) for you` : 'No bookmarks saved yet - use the sidebar to save your first webpage!'}
 
-Try asking: "What are the main topics covered in my documents?" or "Summarize the key insights from my stored content"`,
+Try asking: "What bookmarks do I have about technology?" or "Summarize that article I saved about productivity" or "Find bookmarks related to AI"`,
       role: 'assistant',
       timestamp: new Date()
     };
@@ -82,14 +88,32 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputValue('');
     setLoading(true);
 
     try {
+      // Prepare conversation history (exclude welcome message, include all previous messages)
+      const previousMessages = updatedMessages
+        .filter(msg => msg.id !== '1') // Exclude welcome message
+        .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+        .slice(0, -1) // Exclude the current user message (last one in updatedMessages)
+        .slice(-10) // Get last 10 messages for context
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+
       // Get enhanced context from backend API
       console.log('🤖 Getting enhanced document context from backend...');
-      const contextData = await apiService.sendChatMessage(userMessage.content, documents.length > 0);
+      console.log('📝 Sending conversation history:', previousMessages.length, 'previous messages');
+      console.log('📝 Conversation history content:', previousMessages);
+      const contextData = await apiService.sendChatMessage(
+        userMessage.content, 
+        documents.length > 0,
+        previousMessages
+      );
 
       console.log('📚 Backend provided context for', contextData.documentsUsed, 'documents');
       console.log('📝 System prompt length:', contextData.systemPrompt.length, 'characters');
@@ -100,12 +124,18 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
       // Import CHAT_MODELS from the SDK
       const { CHAT_MODELS } = await import('@Beyond-Network-AI/beyond-ai');
 
-      // Create comprehensive prompt with system context + user message
-      const messages = [
+      // Create comprehensive prompt with system context + conversation history
+      const chatMessages = [
         {
           role: 'system' as const,
           content: contextData.systemPrompt
         },
+        // Include the previous conversation history
+        ...previousMessages.map((msg: { role: 'user' | 'assistant'; content: string }) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        // Add the current user message
         {
           role: 'user' as const,
           content: userMessage.content
@@ -115,9 +145,11 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
       console.log('🚀 Sending to Beyond AI with full document context...');
 
       // Send to Beyond AI with enhanced context
+      console.log('🚀 Sending to Beyond AI with', chatMessages.length, 'messages (system + history + current)');
+      console.log('📋 Message structure:', chatMessages.map(m => `${m.role}: ${m.content.substring(0, 100)}...`));
       const response = await beyond.chat.createCompletion({
         model: CHAT_MODELS.LLAMA_8B,
-        messages: messages,
+        messages: chatMessages,
         temperature: 0.7,
         stream: true
       });
@@ -161,18 +193,18 @@ Try asking: "What are the main topics covered in my documents?" or "Summarize th
     // Add confirmation message
     const confirmationMessage: Message = {
       id: generateMessageId(),
-      content: `✅ **Document "${document.title}" successfully added to your knowledge base!**
+      content: `✅ **Bookmark "${document.title}" saved successfully!**
 
-🌐 **Permanently stored on Irys**: [View Document](${document.irysUrl})
+🔖 **Smart bookmark created**: [View Original](${document.url}) | [Permanent Copy](${document.irysUrl})
 
-🤖 **I now have full access to this content** and can:
-- Answer detailed questions about the document
-- Quote specific sections and provide citations
-- Compare it with your other stored documents
-- Include it in summaries and analysis
-- Use it to provide context-aware responses
+🤖 **I've read and remembered this content** and can now:
+- Help you find this bookmark when you need it
+- Answer questions about what it contains
+- Summarize its key points
+- Compare it with your other bookmarks
+- Include it in topic-based searches
 
-Try asking me: "What is this document about?" or "How does this relate to my other documents?"`,
+Try asking me: "What's this bookmark about?" or "Find my bookmarks about this topic" or "Summarize this for me"`,
       role: 'assistant',
       timestamp: new Date()
     };
@@ -210,6 +242,17 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
       </header>
 
       <div className="chat-main-content">
+        <div className="sidebar-section">
+          <DocumentSidebar 
+            documents={documents}
+            onDocumentAdded={handleDocumentAdded} 
+            onDocumentDeleted={onDocumentDeleted}
+            documentsLoading={documentsLoading}
+            documentsError={documentsError}
+            onRetryLoadDocuments={onRetryLoadDocuments}
+          />
+        </div>
+
         <div className="chat-section">
           <div className="chat-messages">
             {messages.map((message) => (
@@ -239,8 +282,8 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={
                   documents.length > 0 
-                    ? `Ask me anything about your ${documents.length} stored document(s)...`
-                    : "Add documents first, then ask me anything about them..."
+                    ? `Ask me about your ${documents.length} saved bookmark(s)...`
+                    : "Save some bookmarks first, then ask me to find or summarize them..."
                 }
                 disabled={loading}
                 className="chat-input"
@@ -254,14 +297,6 @@ Try asking me: "What is this document about?" or "How does this relate to my oth
               </button>
             </div>
           </form>
-        </div>
-
-        <div className="sidebar-section">
-          <DocumentSidebar 
-            documents={documents}
-            onDocumentAdded={handleDocumentAdded} 
-            onDocumentDeleted={onDocumentDeleted} 
-          />
         </div>
       </div>
     </div>

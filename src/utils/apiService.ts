@@ -2,9 +2,17 @@
 const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const currentDomain = window.location.hostname;
+    const currentPort = window.location.port;
+
+    // Local development - check for localhost or 127.0.0.1
+    if (currentDomain === 'localhost' || currentDomain === '127.0.0.1') {
+      console.log('🏠 Local development detected, using localhost:3001 for API');
+      return 'http://localhost:3001/api';
+    }
 
     // Deployed on Replit - backend serves frontend from same server with /api prefix
     if (currentDomain.includes('replit.app') || currentDomain.includes('beyondnetwork.xyz')) {
+      console.log('🌐 Replit deployment detected, using same origin for API');
       return `${window.location.origin}/api`;
     }
 
@@ -13,13 +21,17 @@ const API_BASE_URL = (() => {
       // Extract base domain without port
       const baseDomain = currentDomain.split(':')[0];
       const baseUrl = `${window.location.protocol}//${baseDomain}:3001/api`;
+      console.log('🔧 Replit dev environment detected, using:', baseUrl);
       return baseUrl;
     }
   }
 
   // Development fallback
+  console.log('🔄 Using fallback API URL: http://localhost:3001/api');
   return 'http://localhost:3001/api';
 })();
+
+console.log('🔗 API Base URL configured as:', API_BASE_URL);
 
 export interface Document {
   id: string;
@@ -217,9 +229,13 @@ class ApiService {
   // ==================== CHAT OPERATIONS ====================
 
   /**
-   * Send a chat message with document context
+   * Send a chat message with document context and conversation history
    */
-  async sendChatMessage(message: string, includeDocuments = true): Promise<{
+  async sendChatMessage(
+    message: string, 
+    includeDocuments = true,
+    conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
+  ): Promise<{
     response: string;
     systemPrompt: string;
     documentContext: Array<{
@@ -239,7 +255,7 @@ class ApiService {
       documentsUsed: number;
     }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, includeDocuments }),
+      body: JSON.stringify({ message, includeDocuments, conversationHistory }),
     });
 
     if (!response.success) {
