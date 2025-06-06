@@ -23,7 +23,6 @@ interface ChatInterfaceProps {
   onDocumentDeleted: (documentId: string) => void;
   documentsLoading?: boolean;
   documentsError?: string;
-  onRetryLoadDocuments?: () => Promise<Document[]>;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -33,8 +32,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onDocumentAdded,
   onDocumentDeleted,
   documentsLoading = false,
-  documentsError = '',
-  onRetryLoadDocuments
+  documentsError = ''
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
