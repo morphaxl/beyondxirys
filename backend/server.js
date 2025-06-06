@@ -16,26 +16,30 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// A list of allowed origins
+const allowedOrigins = [
+  'http://localhost:5001', // Local dev
+  process.env.FRONTEND_URL, // Vercel production & preview URLs
+].filter(Boolean); // Filter out undefined values if FRONTEND_URL is not set
+
 // Middleware
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,
-    process.env.FRONTEND_DEV_URL,
-    'http://localhost:5001',
-    `https://${process.env.REPLIT_DEV_DOMAIN}`,
-    `https://${process.env.REPLIT_DEV_DOMAIN}:5001`,
-    'https://beyond-gyan.replit.app',
-    'https://gyan.beyondnetwork.xyz',
-    /^https:\/\/.*\.replit\.dev$/,
-    /^https:\/\/.*\.replit\.dev:\d+$/,
-    /^https:\/\/.*\.replit\.app$/,
-    /^https:\/\/.*\.picard\.replit\.dev$/,
-    /^https:\/\/.*\.picard\.replit\.dev:\d+$/
-  ].filter(Boolean), // Remove any undefined values
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow from Vercel preview domains
+    if (/\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'x-user-info'],
-  optionsSuccessStatus: 200 // For legacy browser support
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

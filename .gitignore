@@ -26,3 +26,8 @@ dist-ssr
 # Vercel
 .vercel
 .output
+
+# Environment variables
+.env
+.env.*
+!.env.example
