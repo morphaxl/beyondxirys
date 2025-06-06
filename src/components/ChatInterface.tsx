@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useDrag } from '@use-gesture/react';
 import MessageBubble from './MessageBubble';
 import DocumentSidebar from './DocumentSidebar';
 import type { Document } from '../utils/apiService';
@@ -39,6 +40,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [loading, setLoading] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Gesture handling for sidebar
+  const bind = useDrag(({ down, movement: [mx], direction: [dx], velocity: [vx] }) => {
+    // A swipe is a motion that is fast and covers a significant distance.
+    if (!down && dx > 0 && mx > 50 && vx > 0.5) {
+      setSidebarOpen(true);
+    }
+  }, { axis: 'x' }); // Only track horizontal movement
 
   useEffect(() => {
     // Add welcome message
@@ -236,7 +245,7 @@ Try asking me: "What's this bookmark about?" or "Find my bookmarks about this to
         isOpen={isSidebarOpen}
         onSignOut={handleSignOut}
       />
-      <div className="main-content">
+      <div className="main-content" {...bind()}>
         <div 
           className={`content-overlay ${isSidebarOpen ? 'active' : ''}`}
           onClick={() => setSidebarOpen(false)}
