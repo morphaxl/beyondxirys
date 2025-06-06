@@ -213,7 +213,6 @@ function App() {
             onDocumentDeleted={handleDocumentDeleted}
             documentsLoading={documentsLoading}
             documentsError={documentsError}
-            onRetryLoadDocuments={() => loadUserDocuments(true)}
           />
         )}
       </div>
